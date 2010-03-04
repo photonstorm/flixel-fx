@@ -179,7 +179,7 @@ package org.flixel
             var r:uint = (((src2[0] - src1[0]) * currentStep) / steps) + src1[0];
             var g:uint = (((src2[1] - src1[1]) * currentStep) / steps) + src1[1];
             var b:uint = (((src2[2] - src1[2]) * currentStep) / steps) + src1[2];
-        
+
 			return getColor32(alpha, r, g, b);
         }
 		
