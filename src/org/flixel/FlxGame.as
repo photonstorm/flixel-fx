@@ -47,6 +47,8 @@ package org.flixel
 		 */
 		public var pause:FlxGroup;
 		
+		public var customSound:Function;
+		
 		//startup
 		internal var _iState:Class;
 		internal var _created:Boolean;

@@ -1,51 +1,23 @@
 ﻿/**
- * FlxColor - Adds a set of fast color manipulation specific functions
+ * FlxColor
+ * Version 1.0
+ * March 9th 2010
+ * 
  * @link http://www.photonstorm.com
  * @author Richard Davey / Photon Storm
+ * @see Depends upon FlxMath
 */
 
 package org.flixel 
 {
 	/**
-	 * <code>FlxColor</code> is a set of fast color manipulation functions.
-	 * It can be used for creating gradient maps or general color translation.
+	 * <code>FlxColor</code> is a set of fast color manipulation and color harmony methods for Flixel 2.x
+	 * Can be used for creating gradient maps or general color translation / conversion.
 	 */
 	public class FlxColor
 	{
-		
-		public function FlxColor() 
+		public function FlxColor()
 		{
-		}
-		
-        /**
-         * This function converts a standard Flash color value into an Array of HSL values
-		 * 
-         * @param	color	The integer RGB color value (0xRRGGBB), excluding Alpha
-		 * 
-         * @return The HSL color values in a 3 dimensional array
-         */
-		static public function colorToHSL(color:uint):Array
-        {
-			var rgb:Array = getRGB(color);
-			
-			return toHSL(rgb[0], rgb[1], rgb[2]);
-        }
-		
-        static public function RGBToHSL(red:uint, green:uint, blue:uint):Array
-        {
-			return toHSL(red, green, blue);
-        }
-		
-		static public function getGradientAsArray(color1:uint, color2:uint, steps:uint):Array
-		{
-			var result:Array = new Array(steps);
-			
-			for (var s:int = 0; s < steps; s++)
-			{
-				result.push(interpolateColor(color1, color2, steps, s));
-			}
-			
-			return result;
 		}
 		
 		static public function getHSVColorWheel():Array
@@ -60,13 +32,173 @@ package org.flixel
 			return colours;
 		}
 		
+		/**
+		 * Returns a Complementary Color Harmony for the given color.
+		 * <p>A complementary hue is one directly opposite the color given on the color wheel</p>
+		 * <p>Value returned in 0xAARRGGBB format with Alpha set to 255.</p>
+		 * 
+		 * @param	color The color to base the harmony on
+		 * 
+		 * @return 0xAARRGGBB format color value
+		 */
+		static public function getComplementHarmony(color:uint):uint
+		{
+			var hsv:Object = RGBtoHSV(color);
+			
+			var opposite:int = FlxMath.wrapValue(hsv.hue, 180, 359);
+			
+			return HSVtoRGB(opposite, 1.0, 1.0);
+		}
+		
+		/**
+		 * Returns an Analogous Color Harmony for the given color.
+		 * <p>An Analogous harmony are hues adjacent to each other on the color wheel</p>
+		 * <p>Values returned in 0xAARRGGBB format with Alpha set to 255.</p>
+		 * 
+		 * @param	color The color to base the harmony on
+		 * @param	threshold Control how adjacent the colors will be (default +- 30 degrees)
+		 * 
+		 * @return 	Object containing 3 properties: color1 (the original color), color2 (the warmer analogous color) and color3 (the colder analogous color)
+		 */
+		static public function getAnalogousHarmony(color:uint, threshold:int = 30):Object
+		{
+			var hsv:Object = RGBtoHSV(color);
+			
+			if (threshold > 359 || threshold < 0)
+			{
+				throw Error("FlxColor Warning: Invalid threshold given to getAnalogousHarmony()");
+			}
+			
+			var warmer:int = FlxMath.wrapValue(hsv.hue, 359 - threshold, 359);
+			var colder:int = FlxMath.wrapValue(hsv.hue, threshold, 359);
+			
+			return { color1: color, color2: HSVtoRGB(warmer, 1.0, 1.0), color3: HSVtoRGB(colder, 1.0, 1.0), hue1: hsv.hue, hue2: warmer, hue3: colder }
+		}
+		
+		/**
+		 * Returns an Split Complement Color Harmony for the given color.
+		 * <p>A Split Complement harmony are the two hues on either side of the color's Complement</p>
+		 * <p>Values returned in 0xAARRGGBB format with Alpha set to 255.</p>
+		 * 
+		 * @param	color The color to base the harmony on
+		 * @param	threshold Control how adjacent the colors will be to the Complement (default +- 30 degrees)
+		 * 
+		 * @return 	Object containing 3 properties: color1 (the original color), color2 (the warmer analogous color) and color3 (the colder analogous color)
+		 */
+		static public function getSplitComplementHarmony(color:uint, threshold:int = 30):Object
+		{
+			var hsv:Object = RGBtoHSV(color);
+			
+			if (threshold >= 359 || threshold <= 0)
+			{
+				throw Error("FlxColor Warning: Invalid threshold given to getSplitComplementHarmony()");
+			}
+			
+			var opposite:int = FlxMath.wrapValue(hsv.hue, 180, 359);
+			
+			var warmer:int = FlxMath.wrapValue(hsv.hue, opposite - threshold, 359);
+			var colder:int = FlxMath.wrapValue(hsv.hue, opposite + threshold, 359);
+			
+			FlxG.log("hue: " + hsv.hue + " opposite: " + opposite + " warmer: " + warmer + " colder: " + colder);
+			
+			//return { color1: color, color2: HSVtoRGB(warmer, 1.0, 1.0), color3: HSVtoRGB(colder, 1.0, 1.0), hue1: hsv.hue, hue2: warmer, hue3: colder }
+			
+			return { color1: color, color2: HSVtoRGB(warmer, hsv.saturation, hsv.value), color3: HSVtoRGB(colder, hsv.saturation, hsv.value), hue1: hsv.hue, hue2: warmer, hue3: colder }
+		}
+		
+		/**
+		 * Returns a Triadic Color Harmony for the given color.
+		 * <p>A Triadic harmony are 3 hues equidistant from each other on the color wheel</p>
+		 * <p>Values returned in 0xAARRGGBB format with Alpha set to 255.</p>
+		 * 
+		 * @param	color The color to base the harmony on
+		 * 
+		 * @return 	Object containing 3 properties: color1 (the original color), color2 and color3 (the equidistant colors)
+		 */
+		static public function getTriadicHarmony(color:uint):Object
+		{
+			var hsv:Object = RGBtoHSV(color);
+			
+			var triadic1:int = FlxMath.wrapValue(hsv.hue, 120, 359);
+			var triadic2:int = FlxMath.wrapValue(triadic1, 120, 359);
+			
+			return { color1: color, color2: HSVtoRGB(triadic1, 1.0, 1.0), color3: HSVtoRGB(triadic2, 1.0, 1.0) }
+		}
+		
+		/**
+		 * Returns a String containing handy information about the given color including String hex value,
+		 * RGB format information and HSL information. Each section starts on a newline, 3 lines in total.
+		 * 
+		 * @param	color A color value in the format 0xAARRGGBB
+		 * 
+		 * @return	String containing the 3 lines of information
+		 */
+		static public function getColorInfo(color:uint):String
+		{
+			var argb:Object = getRGB(color);
+			var hsl:Object = RGBtoHSV(color);
+			
+			//	Hex format
+			var result:String = RGBtoHexString(color) + "\n";
+			
+			//	RGB format
+			result = result.concat("Alpha: " + argb.alpha + " Red: " + argb.red + " Green: " + argb.green + " Blue: " + argb.blue) + "\n";
+			
+			//	HSL info
+			result = result.concat("Hue: " + hsl.hue + " Saturation: " + hsl.saturation + " Lightnes: " + hsl.lightness);
+			
+			return result;
+		}
+		
+		/**
+		 * Return a String representation of the color in the format 0xAARRGGBB
+		 * 
+		 * @param	color The color to get the String representation for
+		 * 
+		 * @return	A string of length 10 characters in the format 0xAARRGGBB
+		 */
+		static public function RGBtoHexString(color:uint):String
+		{
+			var argb:Object = getRGB(color);
+			
+			return "0x" + colorToHexString(argb.alpha) + colorToHexString(argb.red) + colorToHexString(argb.green) + colorToHexString(argb.blue);
+		}
+
+		/**
+		 * Return a String containing a hex representation of the given color
+		 * 
+		 * @param	color The color channel to get the hex value for, must be a value between 0 and 255)
+		 * 
+		 * @return	A string of length 2 characters, i.e. 255 = FF, 0 = 00
+		 */
+		static public function colorToHexString(color:uint):String
+		{
+			var digits:String = "0123456789ABCDEF";
+			
+			var lsd:Number = color % 16;
+			var msd:Number = (color - lsd) / 16;
+			
+			var hexified:String = digits.charAt(msd) + digits.charAt(lsd);
+			
+			return hexified;
+		}
+		
+		/**
+		 * Convert a HSV (hue, saturation, lightness) color space value to an RGB color
+		 * 
+		 * @param	h Hue degree, between 0 and 359
+		 * @param	s Saturation, between 0.0 (grey) and 1.0
+		 * @param	v Value, between 0.0 (black) and 1.0
+		 * 
+		 * @return 32-bit RGB colour value (0xAARRGGBB)
+		 */
 		static public function HSVtoRGB(h:Number, s:Number, v:Number):uint
 		{
 			var result:uint;
 			
 			if (s == 0.0)
 			{
-				result = getColor24(v * 255, v * 255, v * 255);
+				result = getColor32(255, v * 255, v * 255, v * 255);
 			}
 			else
 			{
@@ -79,42 +211,51 @@ package org.flixel
 				switch (int(h))
 				{
 					case 0:
-						result = getColor24(v * 255, t * 255, p * 255);
+						result = getColor32(255, v * 255, t * 255, p * 255);
 						break;
 						
 					case 1:
-						result = getColor24(q * 255, v * 255, p * 255);
+						result = getColor32(255, q * 255, v * 255, p * 255);
 						break;
 						
 					case 2:
-						result = getColor24(p * 255, v * 255, t * 255);
+						result = getColor32(255, p * 255, v * 255, t * 255);
 						break;
 						
 					case 3:
-						result = getColor24(p * 255, q * 255, v * 255);
+						result = getColor32(255, p * 255, q * 255, v * 255);
 						break;
 						
 					case 4:
-						result = getColor24(t * 255, p * 255, v * 255);
+						result = getColor32(255, t * 255, p * 255, v * 255);
 						break;
 						
 					case 5:
-						result = getColor24(v * 255, p * 255, q * 255);
+						result = getColor32(255, v * 255, p * 255, q * 255);
 						break;
 						
 					default:
-						FlxG.log("unknown colour");
+						FlxG.log("FlxColor Error: HSVtoRGB : Unknown color");
 				}
 			}
 			
 			return result;
 		}
 		
-		static private function toHSL(r:uint, g:uint, b:uint):Array
+		/**
+		 * Convert an RGB color value to an object containing the HSV color space values: Hue, Saturation and Lightness
+		 * 
+		 * @param	color In format 0xRRGGBB
+		 * 
+		 * @return 	Object with the properties hue (from 0 to 360), saturation (from 0 to 1.0) and lightness (from 0 to 1.0, also available under .value)
+		 */
+		static public function RGBtoHSV(color:uint):Object
 		{
-			var red:Number = r / 255;
-			var green:Number = g / 255;
-			var blue:Number = b / 255;
+			var rgb:Object = getRGB(color);
+			
+			var red:Number = rgb.red / 255;
+			var green:Number = rgb.green / 255;
+			var blue:Number = rgb.blue / 255;
 			
 			var min:Number = Math.min(red, green, blue);
             var max:Number = Math.max(red, green, blue);
@@ -168,28 +309,43 @@ package org.flixel
                 }
             }
             
-            return [hue, saturation, lightness];
+			//	Keep the value with 0 to 359
+			hue *= 360;
+			hue = Math.round(hue);
+			
+			//	Testing
+			//saturation *= 100;
+			//lightness *= 100;
+			
+            return { hue: hue, saturation: saturation, lightness: lightness, value: lightness };
 		}
 		
-        static public function interpolateColor(color1:uint, color2:uint, steps:uint, currentStep:uint, alpha:uint = 255):uint
+        
+		
+		
+		
+		
+		
+		
+		static public function interpolateColor(color1:uint, color2:uint, steps:uint, currentStep:uint, alpha:uint = 255):uint
         {
-			var src1:Array = getRGB(color1);
-			var src2:Array = getRGB(color2);
+			var src1:Object = getRGB(color1);
+			var src2:Object = getRGB(color2);
 			
-            var r:uint = (((src2[0] - src1[0]) * currentStep) / steps) + src1[0];
-            var g:uint = (((src2[1] - src1[1]) * currentStep) / steps) + src1[1];
-            var b:uint = (((src2[2] - src1[2]) * currentStep) / steps) + src1[2];
+            var r:uint = (((src2.red - src1.red) * currentStep) / steps) + src1.red;
+            var g:uint = (((src2.green - src1.green) * currentStep) / steps) + src1.green;
+            var b:uint = (((src2.blue - src1.blue) * currentStep) / steps) + src1.blue;
 
 			return getColor32(alpha, r, g, b);
         }
 		
         static public function interpolateColorWithRGB(color:uint, r2:uint, g2:uint, b2:uint, steps:uint, currentStep:uint):uint
         {
-			var src:Array = getRGB(color);
+			var src:Object = getRGB(color);
 			
-            var r:uint = (((r2 - src[0]) * currentStep) / steps) + src[0];
-            var g:uint = (((g2 - src[1]) * currentStep) / steps) + src[1];
-            var b:uint = (((b2 - src[2]) * currentStep) / steps) + src[2];
+            var r:uint = (((r2 - src.red) * currentStep) / steps) + src.red;
+            var g:uint = (((g2 - src.green) * currentStep) / steps) + src.green;
+            var b:uint = (((b2 - src.blue) * currentStep) / steps) + src.blue;
         
 			return getColor24(r, g, b);
         }
@@ -203,9 +359,33 @@ package org.flixel
 			return getColor24(r, g, b);
         }
 		
-		static public function getRandomColor24():uint
+		/**
+		 * Returns a random color value between black and white
+		 * <p>Set the min value to start each channel from the given offset.</p>
+		 * <p>Set the max value to restrict the maximum color used per channel</p>
+		 * 
+		 * @return 32-bit color value with Alpha value of 255
+		 */
+		static public function getRandomColor(min:uint = 0, max:uint = 255):uint
 		{
-			return getColor24(Math.random() * 255, Math.random() * 255, Math.random() * 255);
+			//	Sanity checks
+			if (max > 255)
+			{
+				FlxG.log("FlxColor Warning: getRandomColor - max value too high");
+				return getColor24(255, 255, 255);
+			}
+			
+			if (min > max)
+			{
+				FlxG.log("FlxColor Warning: getRandomColor - min value higher than max");
+				return getColor24(255, 255, 255);
+			}
+			
+			var red:uint = min + int(Math.random() * (max - min));
+			var green:uint = min + int(Math.random() * (max - min));
+			var blue:uint = min + int(Math.random() * (max - min));
+			
+			return getColor32(255, red, green, blue);
 		}
 		
 		/**
@@ -224,7 +404,7 @@ package org.flixel
 		}
 		
 		/**
-		 * Given 3 colors values this will return an integer representation of it
+		 * Given 3 color values this will return an integer representation of it
 		 * 
 		 * @param	red		The Red channel value (between 0 and 255)
 		 * @param	green	The Green channel value (between 0 and 255)
@@ -237,23 +417,23 @@ package org.flixel
 			return red << 16 | green << 8 | blue;
 		}
 		
-		static public function getARGB(color:uint):Array
+		/**
+		 * Return the component parts of a color as an Object with the properties alpha, red, green, blue
+		 * 
+		 * <p>Alpha will only be set if it exist in the given color (0xAARRGGBB)</p>
+		 * 
+		 * @param	color in RGB (0xRRGGBB) or ARGB format (0xAARRGGBB)
+		 * 
+		 * @return Object with properties: alpha, red, green, blue
+		 */
+		static public function getRGB(color:uint):Object
 		{
 			var alpha:uint = color >>> 24;
-			var red:uint = color >> 16;
+			var red:uint = color >> 16 & 0xFF;
 			var green:uint = color >> 8 & 0xFF;
 			var blue:uint = color & 0xFF;
 			
-			return [ alpha, red, green, blue ];
-		}
-		
-		static public function getRGB(color:uint):Array
-		{
-			var red:uint = color >> 16;
-			var green:uint = color >> 8 & 0xFF;
-			var blue:uint = color & 0xFF;
-			
-			return [ red, green, blue ];
+			return { alpha: alpha, red: red, green: green, blue: blue };
 		}
 		
 		/**
@@ -277,7 +457,7 @@ package org.flixel
 		 */
 		static public function getRed(color:uint):uint
 		{
-			return color >> 16;
+			return color >> 16 & 0xFF;
 		}
 		
 		/**

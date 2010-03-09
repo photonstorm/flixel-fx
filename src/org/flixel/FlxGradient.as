@@ -148,9 +148,6 @@ package org.flixel
 			return dest;
 		}
 		
-		//static public function createGradientSprite():FlxSprite
-		//{
-		//}
 		
 	}
 

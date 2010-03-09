@@ -351,15 +351,7 @@ package org.flixel
 			amount = Math.abs(amount);
 			max = Math.abs(max);
 			
-			if (value + amount > max)
-			{
-				diff = (value + amount) % max;
-			}
-			else
-			{
-				//	We just do this to avoid an expensive modulo operation when we know the value is lower than max
-				diff = value + amount;
-			}
+			diff = (value + amount) % max;
 			
 			return diff;
 		}

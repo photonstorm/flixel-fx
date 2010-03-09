@@ -14,9 +14,7 @@ package
 		
 		public function Main():void 
 		{
-			//super(320, 240, Demo8, 2);
-			//super(320, 240, Demo7Plasma, 2);
-			super(320, 240, Demo9Plasma, 2);
+			super(640, 480, Demo13SplitComplementHarmony, 1);
 		}
 		
 	}
