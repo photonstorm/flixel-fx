@@ -14,7 +14,9 @@ package
 		
 		public function Main():void 
 		{
-			super(640, 480, Demo13SplitComplementHarmony, 1);
+			//super(640, 480, Demo13SplitComplementHarmony, 1);
+			
+			super(320, 240, Demo14Rotate, 2);
 		}
 		
 	}
