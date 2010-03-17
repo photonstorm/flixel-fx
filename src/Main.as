@@ -16,7 +16,9 @@ package
 		{
 			//super(640, 480, Demo13SplitComplementHarmony, 1);
 			
-			super(320, 240, Demo14Rotate, 2);
+			//super(320, 240, Demo14Rotate, 2);
+			
+			super(320, 240, SnakeDemo, 2);
 		}
 		
 	}
