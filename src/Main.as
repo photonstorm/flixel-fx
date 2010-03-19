@@ -1,5 +1,5 @@
 ﻿/**
- * Flixel 2 Demo FX
+ * Flixel 2.23 Tests
  * @author Richard Davey
  */
 
@@ -14,11 +14,7 @@ package
 		
 		public function Main():void 
 		{
-			//super(640, 480, Demo13SplitComplementHarmony, 1);
-			
-			//super(320, 240, Demo14Rotate, 2);
-			
-			super(320, 240, FlxSnake, 2);
+			super(320, 240, FlxCentipede, 2);
 		}
 		
 	}
