@@ -236,11 +236,11 @@ package org.flixel
 			var ih:uint = Math.ceil(Core.height/_tileHeight)+1;
 			for(var r:uint = 0; r < ih; r++)
 			{
-				if((r < 0) || (r >= heightInTiles)) break;
+				if(r >= heightInTiles) break;
 				d = (iy+r)*widthInTiles+ix;
 				for(c = 0; c < iw; c++)
 				{
-					if((c < 0) || (c >= widthInTiles)) break;
+					if(c >= widthInTiles) break;
 					dd = _data[d+c] as uint;
 					if(dd >= collideIndex)
 						blocks.push({x:x+(ix+c)*_tileWidth,y:y+(iy+r)*_tileHeight,data:dd});
@@ -288,17 +288,17 @@ package org.flixel
 			var c:uint;
 			var d:uint;
 			colOffsets.length = 0;
-			var ix:uint = FlxU.floor((Object.x - x)/_tileWidth);
-			var iy:uint = FlxU.floor((Object.y - y)/_tileHeight);
+			var ix:int = FlxU.floor((Object.x - x)/_tileWidth);
+			var iy:int = FlxU.floor((Object.y - y)/_tileHeight);
 			var iw:uint = FlxU.ceil(Object.width/_tileWidth)+1;
 			var ih:uint = FlxU.ceil(Object.height/_tileHeight)+1;
 			for(var r:uint = 0; r < ih; r++)
 			{
-				if((r < 0) || (r >= heightInTiles)) break;
+				if(r >= heightInTiles) break;
 				d = (iy+r)*widthInTiles+ix;
 				for(c = 0; c < iw; c++)
 				{
-					if((c < 0) || (c >= widthInTiles)) break;
+					if(c >= widthInTiles) break;
 					if((_data[d+c] as uint) >= collideIndex)
 						colOffsets.push(new FlxPoint(x+(ix+c)*_tileWidth, y+(iy+r)*_tileHeight));
 				}
@@ -312,11 +312,142 @@ package org.flixel
 		 * @param	Y		The Y coordinate of the tile (in tiles, not pixels).
 		 * 
 		 * @return	A uint containing the value of the tile at this spot in the array.
+		 * @see		getTileByXY to get a tile based on pixels, not tiles
 		 */
 		public function getTile(X:uint,Y:uint):uint
 		{
 			return getTileByIndex(Y * widthInTiles + X);
 		}
+		
+		public function getTileXY(tile:uint):FlxPoint
+		{
+			
+			var ty:uint = int(tile / widthInTiles);
+			var tx:uint = tile - (ty * widthInTiles);
+			
+			return new FlxPoint(tx, ty);
+		}
+		
+		/**
+		 * Change the data and graphic (optional) of a all tiles in the tilemap matching the given value
+		 * 
+		 * @param	Value			The value of the tiles you want to replace.
+		 * @param	Tile			The new integer data you wish to replace matching tiles with.
+		 * @param	UpdateGraphics	Whether the graphical representation of this tile should change.
+		 * 
+		 * @return	The number of tiles changed
+		 */ 
+		public function replaceTile(Value:uint, Tile:uint, UpdateGraphics:Boolean = true):uint
+		{
+			if (Value == Tile)
+			{
+				return 0;
+			}
+			
+			var total:uint = 0;
+			
+			for (var t:uint = 0; t < _data.length; t++)
+			{
+				if (_data[t] == Value)
+				{
+					setTileByIndex(t, Tile, UpdateGraphics);
+					total++;
+				}
+			}
+			
+			return total;
+		}
+		
+		/**
+		 * Fill the tilemap entirely with the given Tile value, optionally updating the graphics
+		 * @param	Tile
+		 * @param	UpdateGraphics
+		 * @return
+		 */
+		public function fill(Tile:uint, UpdateGraphics:Boolean = true):uint
+		{
+			return 0;
+		}
+		
+		public function createGroupFromTiles():void
+		{
+			//	Take all tiles with a given value, and (optionally?) extract them from the map data, turn each one into a sprite, and return them all in a single Group
+		}
+		
+		public function displayObjectToCSV():void
+		{
+			//	Go through the children of a display object and turn each child into a tile? would need a good mapping reference format (instance name to tile gfx)
+		}
+		
+		
+		/**
+		 * Returns an Object containing useful information about the current tile based on the given X/Y coordinates.
+		 * 
+		 * The coordinates can be given in screen X/Y pixel values (the default), or in Tile X/Y values.
+		 * When using screen pixel values the current camera position / scroll is taken into consideration.
+		 * 
+		 * The returned Object contains 8 values:
+		 * 
+		 * index:uint 			The Array index of the tile (as used by getTileByIndex)
+		 * value:uint 			The value of the tile (as based on the tile map graphics)
+		 * screenX:uint 		The screen X coordinate of the top-left point of this tile
+		 * screenY:uint 		The screen Y coordinate of the top-left point of this tile
+		 * tileX:uint 			The tile X coordinate (given in tiles, not pixels)
+		 * tileY:uint 			The tile Y coordinate (given in tiles, not pixels)
+		 * onScreen:Boolean 	true if the current tile is visible on-screen, false if not
+		 * callback:Function 	The callback function assigned to this tile value, if any
+		 * 
+		 * @param	X				The X coordinate of the tile (in pixels or tile coordinates).
+		 * @param	Y				The Y coordinate of the tile (in pixels or tile coordinates).
+		 * @param	CoordsInPixels	If the coordinates given are in pixels, set this to true (default), otherwise false to use tile x/y coordinates
+		 * 
+		 * @return	Object containing index, value, screenX, screenY, tileX, tileY, onScreen and callback values
+		 */
+		public function getTileDataByXY(X:uint, Y:uint, CoordsInPixels:Boolean = true):Object
+		{
+			if (CoordsInPixels)
+			{
+				//	If the coordinates given were in pixels, we need to translate that to tile coordinates
+				var tx:int = FlxU.floor((X - x) / _tileWidth);
+				var ty:int = FlxU.floor((Y - y) / _tileHeight);
+			}
+			else
+			{
+				//	The values were given in tile coordinates
+				tx = X;
+				ty = Y;
+			}
+			
+			//	The screen coordinates where the top left part of the tile starts
+			var screenX:uint = tx * _tileWidth;
+			var screenY:uint = ty * _tileHeight;
+			
+			//	The index of the tile in the array
+			var ti:uint = ty * widthInTiles + tx;
+			
+			//	The tile value
+			var tv:uint = getTileByIndex(ti);
+			
+			return { index: ti, value: tv, screenX: screenX, screenY: screenY, tileX: tx, tileY: ty, onScreen: false, callback: _callbacks[tv] };
+		}
+		
+		/**
+		 * Get the value of a tile in the tilemap based on the screen X/Y coordinates given
+		 * 
+		 * @param	X		The X coordinate to check (in pixels).
+		 * @param	Y		The Y coordinate to check (in pixels).
+		 * 
+		 * @return	A uint containing the value of the tile at this spot in the array.
+		 */
+		public function getTileByXY(X:uint, Y:uint):uint
+		{
+			var tx:int = FlxU.floor((X - x) / _tileWidth);
+			var ty:int = FlxU.floor((Y - y) / _tileHeight);
+			
+			return getTile(tx, ty);
+		}
+		
+		
 		
 		/**
 		 * Get the value of a tile in the tilemap by index.
@@ -337,10 +468,14 @@ package org.flixel
 		 * @param	Y				The Y coordinate of the tile (in tiles, not pixels).
 		 * @param	Tile			The new integer data you wish to inject.
 		 * @param	UpdateGraphics	Whether the graphical representation of this tile should change.
+		 * 
+		 * @return	Whether or not the tile was actually changed.
 		 */ 
-		public function setTile(X:uint,Y:uint,Tile:uint,UpdateGraphics:Boolean=true):void
+		public function setTile(X:uint,Y:uint,Tile:uint,UpdateGraphics:Boolean=true):Boolean
 		{
-			setTileByIndex(Y * widthInTiles + X,Tile,UpdateGraphics);
+			if((X >= widthInTiles) || (Y >= heightInTiles))
+				return false;
+			return setTileByIndex(Y * widthInTiles + X,Tile,UpdateGraphics);
 		}
 		
 		/**
@@ -349,18 +484,24 @@ package org.flixel
 		 * @param	Index			The slot in the data array (Y * widthInTiles + X) where this tile is stored.
 		 * @param	Tile			The new integer data you wish to inject.
 		 * @param	UpdateGraphics	Whether the graphical representation of this tile should change.
+		 * 
+		 * @return	Whether or not the tile was actually changed.
 		 */
-		public function setTileByIndex(Index:uint,Tile:uint,UpdateGraphics:Boolean=true):void
+		public function setTileByIndex(Index:uint,Tile:uint,UpdateGraphics:Boolean=true):Boolean
 		{
+			if(Index >= _data.length)
+				return false;
+			
+			var ok:Boolean = true;
 			_data[Index] = Tile;
 			
 			if(!UpdateGraphics)
-				return;
+				return ok;
 			
 			if(auto == OFF)
 			{
 				updateTile(Index);
-				return;
+				return ok;
 			}
 
 			//If this map is autotiled and it changes, locally update the arrangement
@@ -381,6 +522,8 @@ package org.flixel
 					}
 				}
 			}
+			
+			return ok;
 		}
 		
 		/**
@@ -398,11 +541,47 @@ package org.flixel
 		}
 		
 		/**
-		 * Call this function to lock the automatic camera to the map's edges.
+		 * Remove a previously bound Callback function from a tile (or range of tiles)
+		 * 
+		 * @param	Tile		The tile callback to remove.
+		 * @param	Range		If you to remove callbacks for a bunch of different tiles, input the range here.  Default value is 1.
 		 */
-		public function follow():void
+		public function removeCallback(Tile:uint, Range:uint = 1):void
 		{
-			FlxG.followBounds(x,y,width,height);
+			if (Range <= 0)
+			{
+				return;
+			}
+			
+			//	Flag the callbacks for removal
+			for (var i:uint = Tile; i < Tile + Range; i++)
+			{
+				_callbacks[i] = null;
+			}
+			
+			//	And now remove them
+			_callbacks.forEach(removeNullCallbacks);
+		}
+		
+		/**
+		 * Internal function that removes null callbacks from the array
+		 */
+		private function removeNullCallbacks(element:*, index:int, arr:Array):void
+		{
+			if (element == null)
+			{
+				_callbacks.splice(index, 1);
+			}
+		}
+		
+		/**
+		 * Call this function to lock the automatic camera to the map's edges.
+		 * 
+		 * @param	Border		Adjusts the camera follow boundary by whatever number of tiles you specify here.  Handy for blocking off deadends that are offscreen, etc.  Use a negative number to add padding instead of hiding the edges.
+		 */
+		public function follow(Border:int=0):void
+		{
+			FlxG.followBounds(x+Border*_tileWidth,y+Border*_tileHeight,width-Border*_tileWidth,height-Border*_tileHeight);
 		}
 		
 		/**

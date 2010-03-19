@@ -9,18 +9,18 @@
 
 package  
 {
-	import flash.display.Bitmap;
-	import flash.display.BitmapData;
-	import flash.geom.Point;
-	import flash.geom.Rectangle;
 	import org.flixel.*;
 	
 	public class SnakeDemo extends FlxState
 	{
-		[Embed(source = '../assets/snake.png')] private var snakeBits:Class;
+		[Embed(source = '../assets/snake.png')] private var snakeTiles:Class;
+		[Embed(source = "../assets/snake_map.txt", mimeType = "application/octet-stream")] public var snakeMapCSV:Class;
 		
+		private var debug:FlxText;
 		private var map:FlxTilemap;
-		private var dirt:FlxSprite;
+		private var safeLocations:Array;
+		private var fruit:FlxSprite;
+		private var snake:theSnake;
 		
 		public function SnakeDemo() 
 		{
@@ -28,53 +28,103 @@ package
 		
 		override public function create():void
 		{
-			var tiles:BitmapData = Bitmap(new snakeBits).bitmapData;
-			
-			/*
-			 * 1 - 6 are the walls, 7 = fruit, 8 = dirt, 9 = snake
-			 */
-			
-			var mapData:String = "";
-			mapData = mapData.concat("1,2,3,4,5,1,2,3,4,5,1,2,3,4,5,1,2,3,4,5\n");
-			mapData = mapData.concat("2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1\n");
-			mapData = mapData.concat("3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2\n");
-			mapData = mapData.concat("4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3\n");
-			mapData = mapData.concat("5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4\n");
-			mapData = mapData.concat("1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5\n");
-			mapData = mapData.concat("2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1\n");
-			mapData = mapData.concat("3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2\n");
-			mapData = mapData.concat("4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3\n");
-			mapData = mapData.concat("5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4\n");
-			mapData = mapData.concat("1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5\n");
-			mapData = mapData.concat("2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1\n");
-			mapData = mapData.concat("3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2\n");
-			mapData = mapData.concat("4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3\n");
-			mapData = mapData.concat("1,2,3,4,5,1,2,3,4,5,1,2,3,4,5,1,2,3,4,5");
+			snake = new theSnake();
 			
 			map = new FlxTilemap();
-			map.loadMap(mapData, snakeBits, 16, 16);
+			map.loadMap(new snakeMapCSV(), snakeTiles, 16, 16);
+			map.collideIndex = 2;
 			
+			//	Put all dirt tiles into the safeLocations array (as these are valid places to put fruit)
+			safeLocations = new Array();
 			
-			dirt = new FlxSprite(0, 0).createGraphic(320, 240);
-			
-			var bmd:BitmapData = dirt.pixels;
-			
-			for (var ty:int = 0; ty <= 240; ty = ty + 16)
+			for (var t:int = 0; t < map.totalTiles; t++)
 			{
-				for (var tx:int = 0; tx <= 320; tx = tx + 16)
+				if (map.getTileByIndex(t) == 1)
 				{
-					bmd.copyPixels(tiles, new Rectangle(16 * 8, 0, 16, 16), new Point(tx, ty));
+					safeLocations.push(t);
 				}
 			}
 			
-			dirt.pixels = bmd;
+			//	Create our fruit sprite (there will only be 1 on-screen at once)
+			fruit = new FlxSprite(0, 0, snakeTiles);
+			fruit.loadGraphic(snakeTiles, true, false, 16, 16);
+			fruit.addAnimation("fruit", [ 8 ], 0, true);
+			fruit.play("fruit");
 			
-			add(dirt);
+			debug = new FlxText(0, 0, 320, "Debug");
+			debug.scrollFactor.x = debug.scrollFactor.y = 0;
+			
+			placeFruit();
+			
+			FlxG.follow(snake.theHead, 2);
+			FlxG.followBounds(0, 0, map.width, map.height);
+			
 			add(map);
+			add(snake);
+			add(debug);
+		}
+		
+		private function placeFruit():void
+		{
+			//	Pick a random bit of dirt from the map :)
+			//map.
+			//
+			//fruit = safeLocations[int(Math.random() * safeLocations.length - 1)];
+			//
+			//map.setTileByIndex(fruit, 8);
+			
+			//map.setCallback(
 			
 		}
 		
-		
+		override public function update():void
+		{
+			//debug.text = "snake x: " + snake.theHead.x + " y: " + snake.theHead.y + " tile: " + map.getTileByScreenXY(snake.theHead.x, snake.theHead.y);
+			
+			//var dx:Object = map.getTileByXY(snake.theHead.x, snake.theHead.y);
+			//debug.text = "snake x: " + snake.theHead.x + " y: " + snake.theHead.y + " tile xy: " + dx.x + " y: " + dx.y;
+			
+			var currentTile:uint = map.getTileByXY(snake.theHead.x, snake.theHead.y);
+			
+			var currentTileXY:FlxPoint = map.getTileXY(currentTile);
+			
+			debug.text = "snake x: " + snake.theHead.x + " y: " + snake.theHead.y + " tile: " + currentTile + " x: " + currentTileXY.x + " y: " + currentTileXY.y;
+			
+			if (snake.isAlive)
+			{
+				if (FlxG.keys.UP)
+				{
+					snake.theHead.facing = FlxSprite.UP;
+					snake.moveSnakeParts();
+				}
+				else if (FlxG.keys.DOWN)
+				{
+					snake.theHead.facing = FlxSprite.DOWN;
+					snake.moveSnakeParts();
+				}
+				else if (FlxG.keys.LEFT)
+				{
+					snake.theHead.facing = FlxSprite.LEFT;
+					snake.moveSnakeParts();
+				}
+				else if (FlxG.keys.RIGHT)
+				{
+					snake.theHead.facing = FlxSprite.RIGHT;
+					snake.moveSnakeParts();
+				}
+			}
+			
+			//if (map.overlaps(snake.theHead))
+			//{
+				//	Fruit or Block?
+				//if (map.get
+				//trace("DEAD!");
+				//snake.isAlive = false;
+			//}
+			
+			super.update();
+			
+		}
 		
 	}
 
