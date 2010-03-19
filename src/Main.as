@@ -18,7 +18,7 @@ package
 			
 			//super(320, 240, Demo14Rotate, 2);
 			
-			super(320, 240, SnakeDemo, 2);
+			super(320, 240, FlxSnake, 2);
 		}
 		
 	}
