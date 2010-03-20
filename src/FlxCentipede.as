@@ -39,7 +39,7 @@ package
 		
 		override public function create():void
 		{
-			centiSpeed = 50;
+			centiSpeed = 40;
 			nextMove = getTimer() + centiSpeed * 2;
 			
 			player = new FlxSprite(FlxG.width / 2, FlxG.height - 8).createGraphic(8, 8);
@@ -77,7 +77,7 @@ package
 			
 			centipede = new FlxGroup();
 			
-			for (var c:uint = 0; c < 12; c++)
+			for (var c:uint = 0; c < 24; c++)
 			{
 				var tempCentipede:FlxSprite = new FlxSprite(tx, ty).createGraphic(8, 8, 0xFF00CECE);
 				tempCentipede.x = 320 + (c * 8);
@@ -140,7 +140,7 @@ package
 					tempBullet.x = player.x + 4;
 					tempBullet.y = player.y;
 					tempBullet.exists = true;
-					tempBullet.velocity.y = -100;
+					tempBullet.velocity.y = -400;
 					tempBullet.acceleration.y = -10;
 					
 					lastFired = getTimer();
@@ -157,6 +157,8 @@ package
 			}
 			
 			FlxU.overlap(bullets, mushrooms, bulletVsMushroom);
+			
+			FlxU.overlap(bullets, centipede);
 			
 			//	If player overlaps with mushrooms now, then move him back - shit solution, but will work for now
 			if (FlxU.overlap(player, mushrooms, noKill))
