@@ -8,6 +8,8 @@
 
 package  
 {
+	import flash.display.BitmapData;
+	import flash.geom.Rectangle;
 	import org.flixel.*;
 	
 	import flash.utils.getTimer;
@@ -22,13 +24,14 @@ package
 		
 		private var player:FlxSprite;
 		private var bullets:FlxGroup;
+		private var centiHead:FlxSprite;
 		private var centipede:FlxGroup;
 		private var mushrooms:FlxGroup;
 		private var score:FlxText;
 		
 		private var lastFired:int;
 		private var nextMove:int;
-		private var snakeSpeed:int;
+		private var centiSpeed:int;
 		
 		public function FlxCentipede() 
 		{
@@ -36,6 +39,9 @@ package
 		
 		override public function create():void
 		{
+			centiSpeed = 50;
+			nextMove = getTimer() + centiSpeed * 2;
+			
 			player = new FlxSprite(FlxG.width / 2, FlxG.height - 8).createGraphic(8, 8);
 			
 			//	Create bullet pool
@@ -61,16 +67,34 @@ package
 				var ty:int = (3 + int(Math.random() * FlxG.height / 8) - 6) * 8; // -+3 to stop them appearing at very top/bottom rows
 				
 				var tempMushroom:FlxSprite = new FlxSprite(tx, ty).createGraphic(8, 8, 0xFFFF0080);
-				tempMushroom.health = 6; // 6 shots to kill
+				tempMushroom.health = 8; // 8 shots to kill
 				
 				mushrooms.add(tempMushroom);
 			}
 			
 			//	Centipede (an array of them, as they split in two?) Or just an array of heads? :)
+			//	Let's start with one and see how we get on, it can be 12 long
+			
+			centipede = new FlxGroup();
+			
+			for (var c:uint = 0; c < 12; c++)
+			{
+				var tempCentipede:FlxSprite = new FlxSprite(tx, ty).createGraphic(8, 8, 0xFF00CECE);
+				tempCentipede.x = 320 + (c * 8);
+				tempCentipede.y = 0;
+				
+				centipede.add(tempCentipede);
+			}
+			
+			//	Get the head?
+			centiHead = centipede.getFirstAlive() as FlxSprite;
+			centiHead.facing = FlxSprite.LEFT;
+			centiHead.createGraphic(8, 8, 0xFF0FFFFF);
 			
 			score = new FlxText(0, 0, 200);
 			FlxG.score = 0;
 			
+			add(centipede);
 			add(player);
 			add(bullets);
 			add(mushrooms);
@@ -141,6 +165,12 @@ package
 				player.y = oldY;
 			}
 			
+			if (getTimer() > nextMove)
+			{
+				moveCentipede();
+				nextMove = getTimer() + centiSpeed;
+			}
+			
 			player.collide(mushrooms);
 		}
 		
@@ -154,12 +184,119 @@ package
 			{
 				obj2.kill();
 			}
+			else
+			{
+				//	Eat away at the gfx :)
+				
+				//obj2 = obj2 as FlxSprite;
+				
+				//var mushy:FlxSprite = obj2 as FlxSprite;
+				
+				//var b:BitmapData = obj2.pixels;
+				//
+				//b.fillRect(new Rectangle(0, 0, 8, obj2.health), 0xFFFF0080);
+				//
+				//obj2.pixels = b;
+			}
 		}
 		
 		private function noKill(obj1:FlxObject, obj2:FlxObject):Boolean
 		{
-			trace("no kill");
+			//trace("no kill");
 			return true;
+		}
+	
+		private function moveCentipede():void
+		{
+			//	Move the head in the direction it is facing
+			//	If it hits the edge of the screen it wraps around, or hits a mushroom it drops down 1, then carries on
+			
+			var oldX:int = centiHead.x;
+			var oldY:int = centiHead.y;
+			
+			switch (centiHead.facing)
+			{
+				case FlxSprite.LEFT:
+					if (centiHead.x == 0)
+					{
+						centiHead.y += 8;
+						centiHead.facing = FlxSprite.RIGHT;
+					}
+					else
+					{
+						//	Check it won't hurt a mushroom
+						for each (var m:FlxSprite in mushrooms.members)
+						{
+							if (m.exists)
+							{
+								if (m.x == centiHead.x - 8 && m.y == centiHead.y)
+								{
+									//	It will, so drop down
+									centiHead.y += 8;
+									centiHead.facing = FlxSprite.RIGHT;
+									continue;
+								}
+							}
+						}
+						
+						//	It didn't change direction
+						if (centiHead.facing == FlxSprite.LEFT)
+						{
+							centiHead.x -= 8;
+						}
+					}
+					break;
+					
+				case FlxSprite.RIGHT:
+					if (centiHead.x == FlxG.width - 8)
+					{
+						centiHead.y += 8;
+						centiHead.facing = FlxSprite.LEFT;
+					}
+					else
+					{
+						//	Check it won't hurt a mushroom
+						for each (var m2:FlxSprite in mushrooms.members)
+						{
+							if (m2.exists)
+							{
+								if (m2.x == centiHead.x + 8 && m2.y == centiHead.y)
+								{
+									//	It will, so drop down
+									centiHead.y += 8;
+									centiHead.facing = FlxSprite.LEFT;
+									continue;
+								}
+							}
+						}
+						
+						//	It didn't change direction
+						if (centiHead.facing == FlxSprite.RIGHT)
+						{
+							centiHead.x += 8;
+						}
+					}
+					break;
+			}
+			
+			//	And now interate the movement down to the rest of the body parts
+			//	The easiest way to do this is simply to work our way backwards through the body pieces!
+			
+			for (var s:int = centipede.members.length - 1; s > 0; s--)
+			{
+				//	We need to keep the x/y/facing values from the head part, to pass onto the next one in the chain
+				if (s == 1)
+				{
+					centipede.members[s].x = oldX;
+					centipede.members[s].y = oldY;
+				}
+				else
+				{
+					centipede.members[s].x = centipede.members[s - 1].x;
+					centipede.members[s].y = centipede.members[s - 1].y;
+				}
+			}
+			
 		}
 		
 	}
