@@ -19,15 +19,20 @@
 				
 				slots.splice(idx, 1);
 				
-				trace("slots length: " + slots.length);
-				
 				spawnMushroom(obj.x, obj.y);
 			}
 		}
 		
-		public function spawnMushroom(X:uint, Y:uint):void
+		public function spawnMushroom(X:uint, Y:uint, actualPixels:Boolean = false):void
 		{
-			add(new mushroomSprite(X * 12, Y * 8));
+			if (actualPixels)
+			{
+				add(new mushroomSprite(X, Y));
+			}
+			else
+			{
+				add(new mushroomSprite(X * 12, Y * 8));
+			}
 		}
 		
 		override public function update():void
@@ -40,7 +45,7 @@
 		{
 			var slots:Array = new Array();
 			
-			for (var gy:uint = 1; gy < 27; gy++)
+			for (var gy:uint = 1; gy < 28; gy++)
 			{
 				for (var gx:uint = 0; gx < 26; gx++)
 				{

@@ -15,6 +15,9 @@
 			this.loadGraphic(mushroomPNG, false, false, 12, 8, true);
 			
 			health = 8;
+			
+			//	Remove this and the mushrooms can be "pushed" by you :)
+			fixed = true;
 		}
 		
 		override public function update():void
@@ -22,15 +25,9 @@
 			super.update();
 		}
 		
-		override public function kill():void
-		{
-			shot();
-		}
-		
-		private function shot():void
+		public function shot():void
 		{
 			//	Eat away at the gfx :)
-			
 			health--;
 			
 			if (health > 0)

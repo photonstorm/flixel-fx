@@ -7,6 +7,7 @@
 	public class centipedeGroup extends FlxGroup
 	{
 		private var mushrooms:mushroomGroup;
+		private var centiHead:centipedeSprite;
 		private var heads:Array;
 		private var nextMove:int;
 		private var centiSpeed:int;
@@ -21,19 +22,24 @@
 			segmentsLeft = segments;
 			nextMove = getTimer() + centiSpeed * 2;
 			
-			for (var c:uint = 0; c < segments; c++)
-			{
-				add(new centipedeSprite(this, 312 + (c * 12), 0));
-			}
-			
+			//	One head to rule them all, at the very start
+			//var centiHead:centipedeSprite = getFirstAlive() as centipedeSprite;
 			heads = new Array();
 			
-			//	One head to rule them all, at the very start
-			var centiHead:centipedeSprite = getFirstAlive() as centipedeSprite;
+			add(new centipedeSprite(this, 312 + (c * 12), 0, c));
+			centiHead = getFirstAlive() as centipedeSprite;
 			centiHead.facing = FlxSprite.LEFT;
 			centiHead.turnIntoHead();
 			
-			heads.push(centiHead);
+			for (var c:uint = 0; c < segments; c++)
+			{
+				add(new centipedeSprite(this, centiHead, 312 + (c * 12), 0, c));
+			}
+			
+			//heads.push(centiHead);
+			
+			//add(centiHead);
+			
 		}
 		
 		public function segmentShot(segment:centipedeSprite):void
@@ -43,19 +49,21 @@
 			//	3) Attach children below the head, to the head
 			//	4) Reverse the new head direction
 			
-			var segmentId:uint = getSegmentId(segment);
+			//var segmentId:uint = getSegmentId(segment);
 			
-			//	Last piece of the centipede?
-			if (segmentId == members.length - 1)
+			trace("shot: " + segment.name);
+			
+			segment.kill();
+			
+			segmentsLeft--;
+			
+			if (segmentsLeft == 0)
 			{
-				segment.killedByParent();
-			}
-			else
-			{
-				//	Last piece left?
+				trace("Level Complete!");
 			}
 		}
 		
+		/*
 		private function getSegmentId(segment:centipedeSprite):uint
 		{
 			var result:uint;
@@ -71,6 +79,7 @@
 			
 			return result;
 		}
+		*/
 		
 		override public function update():void
 		{

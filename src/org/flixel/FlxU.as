@@ -317,8 +317,10 @@ package org.flixel
 			//Avoid messed up collisions ahead of time
 			var o1:Number = Object1.colVector.x;
 			var o2:Number = Object2.colVector.x;
-			if(o1 == o2)
+			if (o1 == o2)
+			{
 				return false;
+			}
 			
 			//Give the objects a heads up that we're about to resolve some collisions
 			Object1.preCollide(Object2);

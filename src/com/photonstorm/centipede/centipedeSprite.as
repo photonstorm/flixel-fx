@@ -6,17 +6,26 @@
 	{
 		[Embed(source = '../../../../assets/centipede/centipede.png')] private var centipedePNG:Class;
 		
+		//	do i need either of these?
+		public var index:uint;
+		public var name:String;
+		
 		private var group:centipedeGroup;
+		public var head:centipedeSprite;
 		
 		public var isHead:Boolean;
 
-		public function centipedeSprite(parent:centipedeGroup, _x:uint, _y:uint) 
+		public function centipedeSprite(_group:centipedeGroup, _head:centipedeSprite, _x:uint, _y:uint, _id:uint) 
 		{
 			super(_x, _y);
 			
+			index = _id;
+			name = "segment" + _id;
+			
 			isHead = false;
 			
-			group = parent;
+			group = _group;
+			head = _head;
 			
 			loadGraphic(centipedePNG, true, false, 12, 8);
 			
@@ -40,15 +49,9 @@
 			super.update();
 		}
 		
-		override public function kill():void
+		public function shot():void
 		{
 			group.segmentShot(this);
-		}
-		
-		public function killedByParent():void
-		{
-			exists = false;
-			dead = true;
 		}
 		
 	}

@@ -22,9 +22,7 @@ package com.photonstorm.centipede
 		//	Mushrooms are like space invader bases, they take a few shots before they vanish
 		//	There is a spider dropping down from time to time
 		
-		[Embed(source = '../../../../assets/centipede/player.png')] private var playerPNG:Class;
-		
-		private var player:FlxSprite;
+		private var player:playerSprite;
 		private var bullets:bulletGroup;
 		private var centipede:centipedeGroup;
 		private var mushrooms:mushroomGroup;
@@ -39,9 +37,8 @@ package com.photonstorm.centipede
 		
 		override public function create():void
 		{
-			player = new FlxSprite(FlxG.width / 2, FlxG.height - 10, playerPNG);
-			
 			bullets = new bulletGroup();
+			player = new playerSprite(bullets);
 			mushrooms = new mushroomGroup(50);
 			centipede = new centipedeGroup(12, mushrooms);
 			
@@ -51,9 +48,9 @@ package com.photonstorm.centipede
 			background = FlxGradient.createGradientFlxSprite(320, 240, [0x0000FF, 0x8000FF, 0x800000], 4);
 			
 			add(background);
+			add(bullets);
 			add(centipede);
 			add(player);
-			add(bullets);
 			add(mushrooms);
 			add(score);
 		}
@@ -64,64 +61,53 @@ package com.photonstorm.centipede
 				
 			score.text = "Score: " + FlxG.score.toString();
 			
-			var oldX:uint = player.x;
-			var oldY:uint = player.y;
+			FlxU.collide(player, mushrooms);
 			
-			if (FlxG.keys.LEFT && player.x > 0)
-			{
-				player.x -= FlxG.elapsed * 150;
-			}
+			FlxU.overlap(bullets, mushrooms, bulletsVsMushrooms);
 			
-			if (FlxG.keys.RIGHT && player.x < FlxG.width - player.width)
-			{
-				player.x += FlxG.elapsed * 150;
-			}
-			
-			if (FlxG.keys.UP && player.y >= 192)
-			{
-				player.y -= FlxG.elapsed * 150;
-				
-				if (player.y < 192)
-				{
-					player.y = 192;
-				}
-			}
-			
-			if (FlxG.keys.DOWN && player.y < FlxG.height - player.height)
-			{
-				player.y += FlxG.elapsed * 150;
-			}
-			
-			//	Need to adds bound checking to these (as it can probably go too far left right now)
-			
-			if (FlxG.keys.CONTROL && getTimer() > lastFired + 75)
-			{
-				if (bullets.fire(player.x, player.y))
-				{
-					lastFired = getTimer();
-				}
-			}
-			
-			//	We've over-ridden the kill method of the mushrooms to handle the custom death!
-			
-			FlxU.overlap(bullets, mushrooms);
-			FlxU.overlap(bullets, centipede);
-			
-			//	If player overlaps with mushrooms now, then move him back - shit solution, but will work for now
-			if (FlxU.overlap(player, mushrooms, noKill))
-			{
-				player.x = oldX;
-				player.y = oldY;
-			}
-			
-			player.collide(mushrooms);
+			FlxU.overlap(bullets, centipede, bulletsVsCentipede);
 		}
 		
-		private function noKill(obj1:FlxObject, obj2:FlxObject):Boolean
+		/**
+		 * Run collision between a bullet and a mushroom
+		 * 
+		 * @param	obj1	The Bullet
+		 * @param	obj2	The Mushroom (cast to mushroomSprite)
+		 * @return	boolean
+		 */
+		private function bulletsVsMushrooms(bullet:FlxObject, obj2:FlxObject):Boolean
 		{
-			//trace("no kill");
+			var mushroom:mushroomSprite = obj2 as mushroomSprite;
+			
+			mushroom.shot();
+			
+			bullet.kill();
+			
 			return true;
 		}
+		
+		/**
+		 * Run collision between a bullet and a centipede segment
+		 * 
+		 * @param	obj1	The Bullet
+		 * @param	obj2	The Centipede (cast to centipedeSprite)
+		 * @return	boolean
+		 */
+		private function bulletsVsCentipede(bullet:FlxObject, obj2:FlxObject):Boolean
+		{
+			var segment:centipedeSprite = obj2 as centipedeSprite;
+			
+			//	Spawn a mushroom at the segments x/y
+			mushrooms.spawnMushroom(segment.x, segment.y, true);
+			
+			//	Kill the segment (spawning a new head perhaps? handled by centipedeGroup)
+			segment.shot();
+			
+			bullet.kill();
+			
+			return true;
+		}
+		
 	}
 
 }
