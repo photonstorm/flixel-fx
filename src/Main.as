@@ -6,6 +6,7 @@
 package 
 {
 	import org.flixel.*;
+	import com.photonstorm.centipede.FlxCentipede;
 		
 	[SWF(width="640", height="480", frameRate="60", backgroundColor="#000000")]
 	
