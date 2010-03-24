@@ -12,34 +12,52 @@
 		private var nextMove:int;
 		private var centiSpeed:int;
 		private var segmentsLeft:uint;
+		public var isDead:Boolean;
 		
-		public function centipedeGroup(segments:uint, mushroomsRef:mushroomGroup) 
+		public function centipedeGroup(segments:uint, mushroomsRef:mushroomGroup, speed:uint, startRight:Boolean) 
 		{
 			super();
 			
 			mushrooms = mushroomsRef;
-			centiSpeed = 250;
+			centiSpeed = speed;
 			segmentsLeft = segments;
+			isDead = false;
 			nextMove = getTimer() + centiSpeed * 2;
 			
 			//	One head to rule them all, at the very start
-			//var centiHead:centipedeSprite = getFirstAlive() as centipedeSprite;
 			heads = new Array();
 			
-			add(new centipedeSprite(this, 312 + (c * 12), 0, c));
-			centiHead = getFirstAlive() as centipedeSprite;
-			centiHead.facing = FlxSprite.LEFT;
-			centiHead.turnIntoHead();
-			
-			for (var c:uint = 0; c < segments; c++)
+			if (startRight)
 			{
-				add(new centipedeSprite(this, centiHead, 312 + (c * 12), 0, c));
+				add(new centipedeSprite(this, null, 312, 0, 0, startRight));
+				centiHead = getFirstAlive() as centipedeSprite;
+				centiHead.turnIntoHead();
+				centiHead.faceLeft();
+			}
+			else
+			{
+				add(new centipedeSprite(this, null, 0, 0, 0, startRight));
+				centiHead = getFirstAlive() as centipedeSprite;
+				centiHead.turnIntoHead();
+				centiHead.faceRight();
 			}
 			
-			//heads.push(centiHead);
+			heads.push(centiHead);
 			
-			//add(centiHead);
+			//	Body Segments
+			for (var c:uint = 1; c < segments; c++)
+			{
+				if (startRight)
+				{
+					add(new centipedeSprite(this, centiHead, 312 + (c * 12), 0, c, startRight));
+				}
+				else
+				{
+					add(new centipedeSprite(this, centiHead, 0 - (c * 12), 0, c, startRight));
+				}
+			}
 			
+			rebuildChildren();
 		}
 		
 		public function segmentShot(segment:centipedeSprite):void
@@ -49,46 +67,161 @@
 			//	3) Attach children below the head, to the head
 			//	4) Reverse the new head direction
 			
-			//var segmentId:uint = getSegmentId(segment);
+			trace("------------------------------------------------------------------------------------");
 			
-			trace("shot: " + segment.name);
+			if (segment.isHead == false)
+			{
+				trace("You killed segment " + segment.index + " whos head is " + segment.head.index);
+			}
+			else
+			{
+				trace("You killed head piece segment " + segment.index);
+			}
+			
+			//	Head? Then remove it from the heads array
+			
+			var orphans:Array = new Array();
+			
+			if (segment.isHead)
+			{
+				trace("You shot a head piece");
+				orphans = getChildren(segment);
+				behead(segment);
+				FlxG.score += 100;
+			}
+			else
+			{
+				orphans = getChildrenBelowSegment(segment);
+				FlxG.score += 10;
+			}
+			
+			//	There are kids to take care of
+			if (orphans.length > 0)
+			{
+				if (segment.isHead == false)
+				{
+					trace("You shot a normal piece");
+				}
+				
+				splitCentipede(orphans);
+			}
+			else
+			{
+				//	If there are no orphans and this wasn't a head piece, then you shot the end of the centipede
+				if (segment.isHead == false)
+				{
+					trace("You shot the last piece of the centipede, and it wasn't a head, so don't do anything");
+				}
+			}
 			
 			segment.kill();
+				
+			rebuildChildren();
 			
+			//	Win condition?
 			segmentsLeft--;
 			
 			if (segmentsLeft == 0)
 			{
-				trace("Level Complete!");
+				isDead = true;
 			}
 		}
 		
-		/*
-		private function getSegmentId(segment:centipedeSprite):uint
+		private function behead(rip:centipedeSprite):void
 		{
-			var result:uint;
+			trace(rip.index + " was a head, so removing it from the heads array (heads length: " + heads.length + ")");
 			
-			for (var i:uint = 0; i < members.length; i++)
+			for (var i:uint = 0; i < heads.length; i++)
 			{
-				if (segment == centipedeSprite(members[i]))
+				if (rip == heads[i])
 				{
-					result = i;
+					heads.splice(i, 1);
 					continue;
 				}
 			}
 			
-			return result;
+			trace("Heads length now : " + heads.length);
 		}
-		*/
+		
+		private function splitCentipede(segments:Array):void
+		{
+			trace("Creating a new centipede from " + segments.length + " orphans");
+			
+			//	The first one becomes a head, no matter what
+			var newHead:centipedeSprite = segments[0] as centipedeSprite;
+			
+			newHead.turnIntoHead();
+			
+			heads.push(newHead);
+			
+			//	Turn the new head around, no matter what
+			if (newHead.facing == FlxSprite.LEFT)
+			{
+				newHead.faceRight();
+			}
+			else
+			{
+				newHead.faceLeft();
+			}
+			
+			if (segments.length > 1)
+			{
+				for (var i:uint = 1; i < segments.length; i++)
+				{
+					segments[i].head = newHead;
+				}
+			}
+		}
+		
+		private function getChildrenBelowSegment(segment:centipedeSprite):Array
+		{
+			var kids:Array = new Array();
+			
+			for (var i:uint = segment.index + 1; i < members.length; i++)
+			{
+				if (members[i].exists && members[i].head == segment.head)
+				{
+					kids.push(members[i]);
+				}
+			}
+			
+			return kids;
+		}
+		
+		private function getChildren(head:centipedeSprite):Array
+		{
+			var kids:Array = new Array();
+			
+			for (var i:uint = 0; i < members.length; i++)
+			{
+				if (members[i].exists && members[i].head == head)
+				{
+					kids.push(members[i]);
+				}
+			}
+			
+			return kids;
+		}
+		
+		private function rebuildChildren():void
+		{
+			for each (var head:centipedeSprite in heads)
+			{
+				head.children = getChildren(head);
+			}
+		}
 		
 		override public function update():void
 		{
 			super.update();
 			
-			if (getTimer() > nextMove)
+			if (isDead == false)
 			{
-				move();
-				nextMove = getTimer() + centiSpeed;
+				if (getTimer() > nextMove)
+				{
+					move();
+					nextMove = getTimer() + centiSpeed;
+				}
 			}
 		}
 	
@@ -97,97 +230,105 @@
 			//	Move the head in the direction it is facing
 			//	If it hits the edge of the screen it wraps around, or hits a mushroom it drops down 1, then carries on
 			
-			var oldX:int = centiHead.x;
-			var oldY:int = centiHead.y;
-			
-			switch (centiHead.facing)
+			for each (var centiHead:centipedeSprite in heads)
 			{
-				case FlxSprite.LEFT:
-					if (centiHead.x == 0)
-					{
-						centiHead.y += 8;
-						centiHead.facing = FlxSprite.RIGHT;
-					}
-					else
-					{
-						//	Check it won't hurt a mushroom
-						for each (var m:mushroomSprite in mushrooms.members)
+				var oldX:int = centiHead.x;
+				var oldY:int = centiHead.y;
+				
+				switch (centiHead.facing)
+				{
+					case FlxSprite.LEFT:
+						if (centiHead.x == 0)
 						{
-							if (m.exists)
+							centiHead.y += 8;
+							centiHead.faceRight();
+						}
+						else
+						{
+							//	Check it won't hurt a mushroom
+							for each (var m:mushroomSprite in mushrooms.members)
 							{
-								if (m.x == centiHead.x - 12 && m.y == centiHead.y)
+								if (m.exists)
 								{
-									//	It will, so drop down
-									centiHead.y += 8;
-									centiHead.facing = FlxSprite.RIGHT;
-									continue;
+									if (m.x == centiHead.x - 12 && m.y == centiHead.y)
+									{
+										//	It will, so drop down
+										centiHead.y += 8;
+										centiHead.faceRight();
+										continue;
+									}
 								}
 							}
-						}
-						
-						//	It didn't change direction
-						if (centiHead.facing == FlxSprite.LEFT)
-						{
-							centiHead.x -= 12;
 							
-							if (centiHead.x < 0)
+							//	It didn't change direction
+							if (centiHead.facing == FlxSprite.LEFT)
 							{
-								centiHead.x = 0;
-							}
-						}
-					}
-					break;
-					
-				case FlxSprite.RIGHT:
-					
-					if (centiHead.x == 312)
-					{
-						centiHead.y += 8;
-						centiHead.facing = FlxSprite.LEFT;
-					}
-					else
-					{
-						//	Check it won't hurt a mushroom
-						for each (var m2:mushroomSprite in mushrooms.members)
-						{
-							if (m2.exists)
-							{
-								if (m2.x == centiHead.x + 12 && m2.y == centiHead.y)
+								centiHead.x -= 12;
+								
+								if (centiHead.x < 0)
 								{
-									//	It will, so drop down
-									centiHead.y += 8;
-									centiHead.facing = FlxSprite.LEFT;
-									continue;
+									centiHead.x = 0;
 								}
 							}
 						}
+						break;
 						
-						//	It didn't change direction
-						if (centiHead.facing == FlxSprite.RIGHT)
+					case FlxSprite.RIGHT:
+						
+						if (centiHead.x == 312)
 						{
-							centiHead.x += 12;
+							centiHead.y += 8;
+							centiHead.faceLeft();
+						}
+						else
+						{
+							//	Check it won't hurt a mushroom
+							for each (var m2:mushroomSprite in mushrooms.members)
+							{
+								if (m2.exists)
+								{
+									if (m2.x == centiHead.x + 12 && m2.y == centiHead.y)
+									{
+										//	It will, so drop down
+										centiHead.y += 8;
+										centiHead.faceLeft();
+										continue;
+									}
+								}
+							}
+							
+							//	It didn't change direction
+							if (centiHead.facing == FlxSprite.RIGHT)
+							{
+								centiHead.x += 12;
+							}
+						}
+						break;
+				}
+				
+				//	And now interate the movement down to the rest of the body parts
+				//	The easiest way to do this is simply to work our way backwards through the body pieces!
+				//	Technically you could take the final piece, and move it to where the head piece WAS, but this works, so sod it
+				
+				if (centiHead.children.length > 0)
+				{
+					for (var s:int = centiHead.children.length - 1; s >= 0; s--)
+					{
+						if (s == 0)
+						{
+							centiHead.children[s].x = oldX;
+							centiHead.children[s].y = oldY;
+						}
+						else
+						{
+							centiHead.children[s].x = centiHead.children[s - 1].x;
+							centiHead.children[s].y = centiHead.children[s - 1].y;
 						}
 					}
-					break;
+				}
+				
 			}
 			
-			//	And now interate the movement down to the rest of the body parts
-			//	The easiest way to do this is simply to work our way backwards through the body pieces!
-			
-			for (var s:int = members.length - 1; s > 0; s--)
-			{
-				//	We need to keep the x/y/facing values from the head part, to pass onto the next one in the chain
-				if (s == 1)
-				{
-					members[s].x = oldX;
-					members[s].y = oldY;
-				}
-				else
-				{
-					members[s].x = members[s - 1].x;
-					members[s].y = members[s - 1].y;
-				}
-			}
 			
 		}
 		

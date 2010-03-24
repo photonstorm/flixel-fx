@@ -6,26 +6,26 @@
 	{
 		[Embed(source = '../../../../assets/centipede/centipede.png')] private var centipedePNG:Class;
 		
-		//	do i need either of these?
 		public var index:uint;
-		public var name:String;
-		
 		private var group:centipedeGroup;
-		public var head:centipedeSprite;
-		
+		private var _head:centipedeSprite;
 		public var isHead:Boolean;
+		private var _children:Array;
 
-		public function centipedeSprite(_group:centipedeGroup, _head:centipedeSprite, _x:uint, _y:uint, _id:uint) 
+		public function centipedeSprite(Group:centipedeGroup, Head:centipedeSprite, X:uint, Y:uint, Index:uint, startRight:Boolean)
 		{
-			super(_x, _y);
+			super(X, Y);
 			
-			index = _id;
-			name = "segment" + _id;
+			index = Index;
 			
 			isHead = false;
 			
-			group = _group;
-			head = _head;
+			group = Group;
+			
+			if (Head != null)
+			{
+				_head = Head;
+			}
 			
 			loadGraphic(centipedePNG, true, false, 12, 8);
 			
@@ -34,14 +34,103 @@
 			addAnimation("walkLeft", [ 2, 3, 4, 5 ], 10, true);
 			addAnimation("walkRight", [ 5, 4, 3, 2 ], 10, true);
 			
-			play("walkLeft");
+			if (startRight)
+			{
+				play("walkRight");
+			}
+			else
+			{
+				play("walkLeft");
+			}
+		}
+		
+		public function get head():centipedeSprite
+		{
+			return _head;
+		}
+		
+		public function set head(head:centipedeSprite):void
+		{
+			_head = head;
+			
+			if (_head.facing == FlxSprite.LEFT)
+			{
+				faceLeft();
+			}
+			else
+			{
+				faceRight();
+			}
+		}
+		
+		public function faceLeft():void
+		{
+			facing = FlxSprite.LEFT;
+			
+			if (isHead)
+			{
+				play("headLeft");
+			}
+			else
+			{
+				play("walkLeft");
+			}
+		}
+		
+		public function faceRight():void
+		{
+			facing = FlxSprite.RIGHT;
+			
+			if (isHead)
+			{
+				play("headRight");
+			}
+			else
+			{
+				play("walkRight");
+			}
+		}
+		
+		public function set children(kids:Array):void
+		{
+			_children = kids;
+			
+			debugKids();
+		}
+		
+		public function get children():Array
+		{
+			return _children;
+		}
+		
+		private function debugKids():void
+		{
+			var s:String = "";
+
+			if (_children.length > 0)
+			{
+				s = "Head " + index + " has children: ";
+				
+				for (var i:uint = 0; i < _children.length; i++)
+				{
+					s = s.concat(_children[i].index + ", ");
+				}
+			}
+			else
+			{
+				s = "Head " + index + " has no children";
+			}
+			
+			trace(s);
+			
 		}
 		
 		public function turnIntoHead():void
 		{
-			isHead = true;
+			trace(index + " has been promoted to a head!");
 			
-			play("headRight");
+			isHead = true;
+			_head = null;
 		}
 		
 		override public function update():void

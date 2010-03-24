@@ -20,16 +20,15 @@ package com.photonstorm.centipede
 		//	As the centipede moves left, down, right (loop) if he hits a mushroom he drops directly down
 		//	If a bullet hits the centipede he splits in two (the part you hit dies), the tail end moves the opposite direction but becomes an independant centipede
 		//	Mushrooms are like space invader bases, they take a few shots before they vanish
-		//	There is a spider dropping down from time to time
+		//	There is a spider dropping down from time to time, collision kills
 		
 		private var player:playerSprite;
 		private var bullets:bulletGroup;
 		private var centipede:centipedeGroup;
+		private var centipede2:centipedeGroup;
 		private var mushrooms:mushroomGroup;
 		private var background:FlxSprite;
 		private var score:FlxText;
-		
-		private var lastFired:int;
 		
 		public function FlxCentipede() 
 		{
@@ -39,8 +38,9 @@ package com.photonstorm.centipede
 		{
 			bullets = new bulletGroup();
 			player = new playerSprite(bullets);
-			mushrooms = new mushroomGroup(50);
-			centipede = new centipedeGroup(12, mushrooms);
+			mushrooms = new mushroomGroup(40);
+			centipede = new centipedeGroup(20, mushrooms, 200, true);
+			centipede2 = new centipedeGroup(12, mushrooms, 100, false);
 			
 			score = new FlxText(0, 0, 200);
 			FlxG.score = 0;
@@ -50,6 +50,7 @@ package com.photonstorm.centipede
 			add(background);
 			add(bullets);
 			add(centipede);
+			add(centipede2);
 			add(player);
 			add(mushrooms);
 			add(score);
@@ -66,6 +67,8 @@ package com.photonstorm.centipede
 			FlxU.overlap(bullets, mushrooms, bulletsVsMushrooms);
 			
 			FlxU.overlap(bullets, centipede, bulletsVsCentipede);
+			
+			FlxU.overlap(bullets, centipede2, bulletsVsCentipede);
 		}
 		
 		/**
@@ -97,11 +100,15 @@ package com.photonstorm.centipede
 		{
 			var segment:centipedeSprite = obj2 as centipedeSprite;
 			
-			//	Spawn a mushroom at the segments x/y
-			mushrooms.spawnMushroom(segment.x, segment.y, true);
-			
-			//	Kill the segment (spawning a new head perhaps? handled by centipedeGroup)
-			segment.shot();
+			//	Incase two or more bullets are overlapping with this segment
+			if (segment.exists)
+			{
+				//	Spawn a mushroom at the segments x/y
+				mushrooms.spawnMushroom(segment.x, segment.y, true);
+				
+				//	Kill the segment (spawning a new head perhaps? handled by centipedeGroup)
+				segment.shot();
+			}
 			
 			bullet.kill();
 			

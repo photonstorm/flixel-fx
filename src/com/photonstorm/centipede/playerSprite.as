@@ -10,6 +10,8 @@
 		
 		private var bullets:bulletGroup;
 		private var lastFired:int;
+		private var xSpeed:uint = 300;
+		private var ySpeed:uint = 200;
 		
 		public function playerSprite(bulletsRef:bulletGroup) 
 		{
@@ -33,17 +35,17 @@
 			//	Need to adds bound checking to these (as it can probably go too far left right now)
 			if (FlxG.keys.LEFT && x > 0)
 			{
-				velocity.x -= 150;
+				velocity.x -= xSpeed;
 			}
 			
 			if (FlxG.keys.RIGHT && x < FlxG.width - width)
 			{
-				velocity.x += 150;
+				velocity.x += xSpeed;
 			}
 			
 			if (FlxG.keys.UP && y >= 192)
 			{
-				velocity.y -= 150;
+				velocity.y -= ySpeed;
 				
 				if (y < 192)
 				{
@@ -53,7 +55,7 @@
 			
 			if (FlxG.keys.DOWN && y < FlxG.height - height)
 			{
-				velocity.y += 150;
+				velocity.y += ySpeed;
 			}
 			
 			//	Evaluate everything else
