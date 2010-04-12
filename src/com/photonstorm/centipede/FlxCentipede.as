@@ -39,8 +39,8 @@ package com.photonstorm.centipede
 			bullets = new bulletGroup();
 			player = new playerSprite(bullets);
 			mushrooms = new mushroomGroup(40);
-			centipede = new centipedeGroup(20, mushrooms, 200, true);
-			centipede2 = new centipedeGroup(12, mushrooms, 100, false);
+			centipede = new centipedeGroup(12, mushrooms, 120, true);
+			//centipede2 = new centipedeGroup(6, mushrooms, 200, false);
 			
 			score = new FlxText(0, 0, 200);
 			FlxG.score = 0;
@@ -50,7 +50,7 @@ package com.photonstorm.centipede
 			add(background);
 			add(bullets);
 			add(centipede);
-			add(centipede2);
+			//add(centipede2);
 			add(player);
 			add(mushrooms);
 			add(score);
@@ -68,7 +68,7 @@ package com.photonstorm.centipede
 			
 			FlxU.overlap(bullets, centipede, bulletsVsCentipede);
 			
-			FlxU.overlap(bullets, centipede2, bulletsVsCentipede);
+			//FlxU.overlap(bullets, centipede2, bulletsVsCentipede);
 		}
 		
 		/**

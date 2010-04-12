@@ -11,6 +11,8 @@
 		private var heads:Array;
 		private var nextMove:int;
 		private var centiSpeed:int;
+		private var slideX:uint = 12;
+		private var slideY:uint = 8;
 		private var segmentsLeft:uint;
 		public var isDead:Boolean;
 		
@@ -240,7 +242,7 @@
 					case FlxSprite.LEFT:
 						if (centiHead.x == 0)
 						{
-							centiHead.y += 8;
+							centiHead.y += slideY;
 							centiHead.faceRight();
 						}
 						else
@@ -253,7 +255,7 @@
 									if (m.x == centiHead.x - 12 && m.y == centiHead.y)
 									{
 										//	It will, so drop down
-										centiHead.y += 8;
+										centiHead.y += slideY;
 										centiHead.faceRight();
 										continue;
 									}
@@ -263,7 +265,7 @@
 							//	It didn't change direction
 							if (centiHead.facing == FlxSprite.LEFT)
 							{
-								centiHead.x -= 12;
+								centiHead.x -= slideX;
 								
 								if (centiHead.x < 0)
 								{
@@ -277,7 +279,7 @@
 						
 						if (centiHead.x == 312)
 						{
-							centiHead.y += 8;
+							centiHead.y += slideY;
 							centiHead.faceLeft();
 						}
 						else
@@ -290,7 +292,7 @@
 									if (m2.x == centiHead.x + 12 && m2.y == centiHead.y)
 									{
 										//	It will, so drop down
-										centiHead.y += 8;
+										centiHead.y += slideY;
 										centiHead.faceLeft();
 										continue;
 									}
@@ -300,13 +302,13 @@
 							//	It didn't change direction
 							if (centiHead.facing == FlxSprite.RIGHT)
 							{
-								centiHead.x += 12;
+								centiHead.x += slideX;
 							}
 						}
 						break;
 				}
 				
-				//	And now interate the movement down to the rest of the body parts
+				//	And now iterate the movement down to the rest of the body parts
 				//	The easiest way to do this is simply to work our way backwards through the body pieces!
 				//	Technically you could take the final piece, and move it to where the head piece WAS, but this works, so sod it
 				
@@ -314,21 +316,43 @@
 				{
 					for (var s:int = centiHead.children.length - 1; s >= 0; s--)
 					{
+						var newX:uint;
+						var newY:uint;
+						
+						//	If this is the final segment before the actual head then we need the coords from the head instead
 						if (s == 0)
 						{
-							centiHead.children[s].x = oldX;
-							centiHead.children[s].y = oldY;
+							newX = oldX;
+							newY = oldY;
 						}
 						else
 						{
-							centiHead.children[s].x = centiHead.children[s - 1].x;
-							centiHead.children[s].y = centiHead.children[s - 1].y;
+							newX = centiHead.children[s - 1].x;
+							newY = centiHead.children[s - 1].y;
+						}
+						
+						//	Has the Y value changed?
+						if (newY != centiHead.children[s].y)
+						{
+							//	Yes
+							centiHead.children[s].y += slideY;
+						}
+						else
+						{
+							//	No, so we only need to move on the X axis
+							if (newX < centiHead.children[s].x)
+							{
+								centiHead.children[s].x -= slideX;
+							}
+							else
+							{
+								centiHead.children[s].x += slideX;
+							}
 						}
 					}
 				}
 				
 			}
-			
 			
 		}
 		

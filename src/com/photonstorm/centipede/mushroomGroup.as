@@ -21,6 +21,9 @@
 				
 				spawnMushroom(obj.x, obj.y);
 			}
+			
+			//	For testing
+			spawnMushroom(12, 0);
 		}
 		
 		public function spawnMushroom(X:uint, Y:uint, actualPixels:Boolean = false):void
