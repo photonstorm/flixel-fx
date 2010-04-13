@@ -16,8 +16,8 @@ package
 		
 		public function Main():void 
 		{
-			//super(320, 240, crystalcaverns, 2);
-			super(320, 240, FlxCentipede, 2);
+			super(320, 240, crystalcaverns, 2);
+			//super(320, 240, FlxCentipede, 2);
 		}
 		
 	}
