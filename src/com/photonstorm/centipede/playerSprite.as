@@ -15,7 +15,7 @@
 		
 		public function playerSprite(bulletsRef:bulletGroup) 
 		{
-			super(FlxG.width / 2, FlxG.height - 10, playerPNG);
+			super(FlxG.width / 2, FlxG.height - 16, playerPNG);
 			
 			bullets = bulletsRef;
 			

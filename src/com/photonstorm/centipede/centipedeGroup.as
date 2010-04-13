@@ -11,8 +11,8 @@
 		private var heads:Array;
 		private var nextMove:int;
 		private var centiSpeed:int;
-		private var slideX:uint = 12;
-		private var slideY:uint = 8;
+		private var slideX:uint = 16;
+		private var slideY:uint = 16;
 		private var segmentsLeft:uint;
 		public var isDead:Boolean;
 		
@@ -31,7 +31,7 @@
 			
 			if (startRight)
 			{
-				add(new centipedeSprite(this, null, 312, 0, 0, startRight));
+				add(new centipedeSprite(this, null, 320, 0, 0, startRight));
 				centiHead = getFirstAlive() as centipedeSprite;
 				centiHead.turnIntoHead();
 				centiHead.faceLeft();
@@ -51,11 +51,11 @@
 			{
 				if (startRight)
 				{
-					add(new centipedeSprite(this, centiHead, 312 + (c * 12), 0, c, startRight));
+					add(new centipedeSprite(this, centiHead, 320 + (c * slideX), 0, c, startRight));
 				}
 				else
 				{
-					add(new centipedeSprite(this, centiHead, 0 - (c * 12), 0, c, startRight));
+					add(new centipedeSprite(this, centiHead, 0 - (c * slideX), 0, c, startRight));
 				}
 			}
 			
@@ -247,12 +247,12 @@
 						}
 						else
 						{
-							//	Check it won't hurt a mushroom
+							//	Check it won't hit a mushroom
 							for each (var m:mushroomSprite in mushrooms.members)
 							{
 								if (m.exists)
 								{
-									if (m.x == centiHead.x - 12 && m.y == centiHead.y)
+									if (m.x == centiHead.x - slideX && m.y == centiHead.y)
 									{
 										//	It will, so drop down
 										centiHead.y += slideY;
@@ -277,19 +277,19 @@
 						
 					case FlxSprite.RIGHT:
 						
-						if (centiHead.x == 312)
+						if (centiHead.x == 320)
 						{
 							centiHead.y += slideY;
 							centiHead.faceLeft();
 						}
 						else
 						{
-							//	Check it won't hurt a mushroom
+							//	Check it won't hit a mushroom
 							for each (var m2:mushroomSprite in mushrooms.members)
 							{
 								if (m2.exists)
 								{
-									if (m2.x == centiHead.x + 12 && m2.y == centiHead.y)
+									if (m2.x == centiHead.x + slideX && m2.y == centiHead.y)
 									{
 										//	It will, so drop down
 										centiHead.y += slideY;

@@ -12,9 +12,9 @@
 		{
 			super(_x, _y);
 			
-			this.loadGraphic(mushroomPNG, false, false, 12, 8, true);
+			this.loadGraphic(mushroomPNG, false, false, 16, 16, true);
 			
-			health = 8;
+			health = 16;
 			
 			//	Remove this and the mushrooms can be "pushed" by you :)
 			fixed = true;
@@ -28,13 +28,13 @@
 		public function shot():void
 		{
 			//	Eat away at the gfx :)
-			health--;
+			health -= 2;
 			
 			if (health > 0)
 			{
 				var bmd:BitmapData = pixels;
 				
-				bmd.fillRect(new Rectangle(0, health, 12, 1), 0x00000000);
+				bmd.fillRect(new Rectangle(0, health, 16, 2), 0x00000000);
 				
 				pixels = bmd;
 			}

@@ -27,7 +27,7 @@
 				_head = Head;
 			}
 			
-			loadGraphic(centipedePNG, true, false, 12, 8);
+			loadGraphic(centipedePNG, true, false, 16, 16);
 			
 			addAnimation("headRight", [ 0 ], 0, true);
 			addAnimation("headLeft", [ 1 ], 0, true);

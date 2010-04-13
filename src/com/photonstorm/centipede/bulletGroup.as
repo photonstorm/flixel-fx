@@ -4,6 +4,7 @@
 
 	public class bulletGroup extends FlxGroup
 	{
+		[Embed(source = '../../../../assets/centipede/bullet.png')] private var bulletPNG:Class;
 		
 		public function bulletGroup() 
 		{
@@ -11,7 +12,8 @@
 			
 			for (var b:uint = 0; b < 40; b++)
 			{
-				var tempBullet:FlxSprite = new FlxSprite().createGraphic(2, 4, 0xFFFFFFFF);
+				//var tempBullet:FlxSprite = new FlxSprite().createGraphic(2, 4, 0xFFFFFFFF);
+				var tempBullet:FlxSprite = new FlxSprite(0, 0, bulletPNG);
 				tempBullet.dead = true;
 				tempBullet.exists = false;
 
@@ -26,7 +28,7 @@
 			{
 				var tempBullet:FlxSprite = getFirstAvail() as FlxSprite;
 				
-				tempBullet.x = px + 4;
+				tempBullet.x = px + 5;
 				tempBullet.y = py;
 				tempBullet.exists = true;
 				tempBullet.velocity.y = -400;

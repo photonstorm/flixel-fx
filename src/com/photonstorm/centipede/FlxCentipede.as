@@ -8,7 +8,9 @@
 
 package com.photonstorm.centipede
 {
+	import flash.display.Bitmap;
 	import flash.display.BitmapData;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import org.flixel.*;
 	
@@ -21,6 +23,7 @@ package com.photonstorm.centipede
 		//	If a bullet hits the centipede he splits in two (the part you hit dies), the tail end moves the opposite direction but becomes an independant centipede
 		//	Mushrooms are like space invader bases, they take a few shots before they vanish
 		//	There is a spider dropping down from time to time, collision kills
+		[Embed(source = '../../../../assets/centipede/ground.png')] private var groundPNG:Class;
 		
 		private var player:playerSprite;
 		private var bullets:bulletGroup;
@@ -39,13 +42,31 @@ package com.photonstorm.centipede
 			bullets = new bulletGroup();
 			player = new playerSprite(bullets);
 			mushrooms = new mushroomGroup(40);
-			centipede = new centipedeGroup(12, mushrooms, 120, true);
+			centipede = new centipedeGroup(8, mushrooms, 160, true);
 			//centipede2 = new centipedeGroup(6, mushrooms, 200, false);
 			
 			score = new FlxText(0, 0, 200);
 			FlxG.score = 0;
 			
-			background = FlxGradient.createGradientFlxSprite(320, 240, [0x0000FF, 0x8000FF, 0x800000], 4);
+			//background = FlxGradient.createGradientFlxSprite(320, 240, [0x0000FF, 0x8000FF, 0x800000], 4);
+			
+			var ground:Bitmap = new groundPNG();
+			
+			background = new FlxSprite(0, 0).createGraphic(FlxG.width, FlxG.height, 0x00000000, true);
+			
+			var tempB:BitmapData = background.pixels;
+			
+			for (var by:uint = 0; by < FlxG.height; by += 16)
+			{
+				for (var bx:uint = 0; bx < FlxG.width; bx += 16)
+				{
+					var t:uint = int(Math.random() * 7) * 16;
+					
+					tempB.copyPixels(ground.bitmapData, new Rectangle(t, 0, 16, 16), new Point(bx, by));
+				}
+			}
+			
+			background.pixels = tempB;
 			
 			add(background);
 			add(bullets);

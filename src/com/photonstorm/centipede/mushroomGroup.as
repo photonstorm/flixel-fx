@@ -23,7 +23,7 @@
 			}
 			
 			//	For testing
-			spawnMushroom(12, 0);
+			//spawnMushroom(12, 0);
 		}
 		
 		public function spawnMushroom(X:uint, Y:uint, actualPixels:Boolean = false):void
@@ -34,7 +34,7 @@
 			}
 			else
 			{
-				add(new mushroomSprite(X * 12, Y * 8));
+				add(new mushroomSprite(X * 16, Y * 16));
 			}
 		}
 		
@@ -43,14 +43,15 @@
 			super.update();
 		}
 		
-		//	Game is all 12x8 - which equals 26 x 30 (312 x 240)
+		//	Game is all 16x16 - which equals 20 x 15 (320 x 240)
+		//	But don't spawn on bottom or top layer (15)
 		private function uniqueGrid():Array
 		{
 			var slots:Array = new Array();
 			
-			for (var gy:uint = 1; gy < 28; gy++)
+			for (var gy:uint = 1; gy < 14; gy++)
 			{
-				for (var gx:uint = 0; gx < 26; gx++)
+				for (var gx:uint = 0; gx < 20; gx++)
 				{
 					slots.push( { x: gx, y: gy } );
 				}
