@@ -207,6 +207,16 @@ package org.flixel
 			return output;
 		}
 		
+		/**
+		 * Internal function that takes a single line of text (2nd parameter) and pastes it into the BitmapData at the given coordinates.
+		 * Used by getLine and getMultiLine
+		 * 
+		 * @param	output			The BitmapData that the text will be drawn onto
+		 * @param	text			The single line of text to paste
+		 * @param	x				The x coordinate
+		 * @param	y
+		 * @param	customSpacingX
+		 */
 		private function pasteLine(output:BitmapData, text:String, x:uint = 0, y:uint = 0, customSpacingX:uint = 0):void
 		{
 			for (var c:uint = 0; c < text.length; c++)
@@ -228,24 +238,41 @@ package org.flixel
 			}
 		}
 		
+		/**
+		 * Works out the longest line of text in the given String and returns its length
+		 * 
+		 * @param	text	The string of text to check
+		 * 
+		 * @return	A value
+		 */
 		private function getLongestLine(text:String):uint
 		{
-			var lines:Array = text.split("\n");
-			
 			var longestLine:uint = 0;
 			
-			for (var i:uint = 0; i < lines.length; i++)
+			if (text.length > 0)
 			{
-				if (lines[i].length > longestLine)
+				var lines:Array = text.split("\n");
+				
+				for (var i:uint = 0; i < lines.length; i++)
 				{
-					longestLine = lines[i].length;
+					if (lines[i].length > longestLine)
+					{
+						longestLine = lines[i].length;
+					}
 				}
 			}
 			
 			return longestLine;
 		}
 		
-		//	If the character doesn't exist in the font then we don't want a blank space, we just want to skip it
+		/**
+		 * Internal helper function that removes all unsupported characters from the String, leaving only characters contained in the font set.
+		 * 
+		 * @param	text		The string to check
+		 * @param	stripCR		Should it strip carriage returns as well? (default = true)
+		 * 
+		 * @return	A clean version of the string
+		 */
 		private function removeUnsupportedCharacters(text:String, stripCR:Boolean = true):String
 		{
 			var newString:String = "";
