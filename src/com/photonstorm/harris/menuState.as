@@ -1,8 +1,6 @@
 package com.photonstorm.harris 
 {
-	import com.photonstorm.centipede.playerSprite;
 	import org.flixel.*;
-	import org.flixel.FlxGame;
 	
 	public class menuState extends FlxState
 	{
@@ -29,13 +27,16 @@ package com.photonstorm.harris
 			
 			if (FlxG.keys.SPACE)
 			{
-				FlxG.fade.start(0xff00FFFF, 1, playGame);
+				FlxG.fade.start(0xff00a0e0, 0.5, playGame);
 			}
 		}
 		
 		private function playGame():void
 		{
-			FlxG.state = new playState();
+			FlxG.score = 30;
+			
+			FlxG.state = new roadState();
+			//FlxG.state = new skiState();
 		}
 		
 	}
