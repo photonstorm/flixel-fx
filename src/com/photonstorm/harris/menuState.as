@@ -34,9 +34,10 @@ package com.photonstorm.harris
 		private function playGame():void
 		{
 			FlxG.score = 30;
+			FlxG.scores[0] = 0;
 			
-			FlxG.state = new roadState();
-			//FlxG.state = new skiState();
+			//FlxG.state = new roadState();
+			FlxG.state = new skiState();
 		}
 		
 	}

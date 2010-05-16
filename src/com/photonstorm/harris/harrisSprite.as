@@ -23,6 +23,7 @@ package com.photonstorm.harris
 		
 		public var hasSkis:Boolean = false;
 		public var isDead:Boolean = false;
+		public var isSnow:Boolean = false;
 		
 		public function harrisSprite() 
 		{
@@ -65,15 +66,21 @@ package com.photonstorm.harris
 		public function setupSkiingSprites():void
 		{
 			isFrogger = false;
+			isSnow = false;
 			
 			harrisSkiing = new FlxSprite(140, 16).loadGraphic(harrisSkiingPNG, true, false, 25, 28, true);
 			harrisSkiing.addAnimation("down", [ 0 ]);
 			harrisSkiing.addAnimation("left", [ 1 ]);
 			harrisSkiing.addAnimation("right", [ 2 ]);
-			harrisSkiing.addAnimation("snowdown", [ 0 ]);
-			harrisSkiing.addAnimation("snowleft", [ 1 ]);
-			harrisSkiing.addAnimation("snowright", [ 2 ]);
+			harrisSkiing.addAnimation("snowdown", [ 3 ]);
+			harrisSkiing.addAnimation("snowleft", [ 4 ]);
+			harrisSkiing.addAnimation("snowright", [ 5 ]);
 			harrisSkiing.facing = FlxSprite.DOWN;
+			
+			harrisSkiing.width = 17;
+			harrisSkiing.height = 16;
+			harrisSkiing.offset.x = 4;
+			harrisSkiing.offset.y = 7;
 			
 			setupRIPSprites();
 			
@@ -216,6 +223,20 @@ package com.photonstorm.harris
 			hasSkis = false;
 		}
 		
+		private function backToSkiing():void
+		{
+			harrisSkiing.x = 140;
+			harrisSkiing.y = 16;
+			harrisSkiing.visible = true;
+			harrisSkiing.facing = FlxSprite.DOWN;
+			
+			harrisRIP.visible = false;
+			harrisAngel.visible = false;
+			
+			isDead = false;
+			isSnow = false;
+		}
+		
 		private function roadUpdate():void
 		{
 			if (isDead)
@@ -242,9 +263,7 @@ package com.photonstorm.harris
 				
 				if (harrisAngel.y < -60)
 				{
-					//	Check if they can afford an ambulance?
-					//backToStart();
-					
+					backToSkiing();
 				}
 			}
 			else
@@ -256,7 +275,15 @@ package com.photonstorm.harris
 					if (harrisSkiing.facing != FlxSprite.LEFT)
 					{
 						harrisSkiing.facing = FlxSprite.LEFT;
-						harrisSkiing.play("left");
+						
+						if (isSnow)
+						{
+							harrisSkiing.play("snowleft");
+						}
+						else
+						{
+							harrisSkiing.play("left");
+						}
 					}
 					
 					harrisSkiing.x -= FlxG.elapsed * skiSpeed;
@@ -268,7 +295,15 @@ package com.photonstorm.harris
 					if (harrisSkiing.facing != FlxSprite.RIGHT)
 					{
 						harrisSkiing.facing = FlxSprite.RIGHT;
-						harrisSkiing.play("right");
+						
+						if (isSnow)
+						{
+							harrisSkiing.play("snowright");
+						}
+						else
+						{
+							harrisSkiing.play("right");
+						}
 					}
 					
 					harrisSkiing.x += FlxG.elapsed * skiSpeed;
@@ -278,7 +313,15 @@ package com.photonstorm.harris
 				if (isMoving == false && harrisSkiing.frame != 0)
 				{
 					harrisSkiing.facing = FlxSprite.DOWN;
-					harrisSkiing.play("down");
+					
+					if (isSnow)
+					{
+						harrisSkiing.play("snowdown");
+					}
+					else
+					{
+						harrisSkiing.play("down");
+					}
 				}
 			}
 			

@@ -6,17 +6,9 @@ package com.photonstorm.harris
 
 	public class skiSlopeGroup extends FlxGroup
 	{
-		[Embed(source = '../../../../assets/harris/billboard.png')] private var billboardPNG:Class;
-		[Embed(source = '../../../../assets/harris/finish.png')] private var finishPNG:Class;
-		[Embed(source = '../../../../assets/harris/flags_blue.png')] private var flagsBluePNG:Class;
-		[Embed(source = '../../../../assets/harris/flags_red.png')] private var flagsRedPNG:Class;
-		[Embed(source = '../../../../assets/harris/hole.png')] private var holePNG:Class;
-		[Embed(source = '../../../../assets/harris/snowman.png')] private var snowmanPNG:Class;
-		[Embed(source = '../../../../assets/harris/tree.png')] private var treePNG:Class;
-		
 		private var scrollSpeed:uint = 40;
 		
-		public var finishY:int;
+		public var finishFlag:slopeItemSprite;
 		
 		public var ripSequence:Boolean = false;
 		
@@ -33,55 +25,27 @@ package com.photonstorm.harris
 			
 			source = new level1();
 			
-			//trace("build level");
-			//trace(source.numChildren);
-			
 			for (var i:uint = 0; i < source.numChildren; i++)
 			{
 				var t:DisplayObject = DisplayObject(source.getChildAt(i));
 				
-				//trace(FlxU.getClassName(t, true));
-				//trace(FlxU.getClassName(source.getChildAt(i), true));
+				add(new slopeItemSprite(t.x, t.y, FlxU.getClassName(source.getChildAt(i), true)));
 				
-				var tempSprite:FlxSprite;
-				
-				switch (FlxU.getClassName(source.getChildAt(i), true))
+				if (FlxU.getClassName(source.getChildAt(i), true) == "finish")
 				{
-					case "billboard":
-						tempSprite = new FlxSprite(t.x, t.y, billboardPNG);
-						break;
-					
-					case "finish":
-						tempSprite = new FlxSprite(t.x, t.y, finishPNG);
-						finishY = t.y + t.height;
-						break;
-					
-					case "flagsBlue":
-						tempSprite = new FlxSprite(t.x, t.y, flagsBluePNG);
-						break;
-					
-					case "flagsRed":
-						tempSprite = new FlxSprite(t.x, t.y, flagsRedPNG);
-						break;
-					
-					case "hole":
-						tempSprite = new FlxSprite(t.x, t.y, holePNG);
-						break;
-					
-					case "snowman":
-						tempSprite = new FlxSprite(t.x, t.y, snowmanPNG);
-						break;
-					
-					case "tree":
-						tempSprite = new FlxSprite(t.x, t.y, treePNG);
-						break;
+					finishFlag = members[members.length - 1];
 				}
-				
-				tempSprite.sname = FlxU.getClassName(source.getChildAt(i), true);
-				add(tempSprite);
-				
+			}
+		}
+		
+		public function restart():void
+		{
+			for each (var s:slopeItemSprite in members)
+			{
+				s.slopeReset();
 			}
 			
+			ripSequence = false;
 		}
 		
 		override public function update():void
@@ -90,7 +54,7 @@ package com.photonstorm.harris
 			
 			if (ripSequence == false)
 			{
-				for each (var s:FlxSprite in members)
+				for each (var s:slopeItemSprite in members)
 				{
 					s.y -= FlxG.elapsed * scrollSpeed;
 				}

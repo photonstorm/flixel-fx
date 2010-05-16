@@ -85,7 +85,7 @@ package com.photonstorm.harris
 		{
 			super.update();
 			
-			stats.text = "Money: £" + FlxG.score.toString();
+			stats.text = "Money: £" + FlxG.score.toString() + "     Score: " + FlxG.scores[0].toString();
 			
 			if (player.isDead == false)
 			{
@@ -117,9 +117,6 @@ package com.photonstorm.harris
 			{
 				if (player.activeSprite.overlaps(skiHireHitZone))
 				{
-					player.pickUpSkis();
-					needsSkis = false;
-					
 					if (FlxG.score < 20)
 					{
 						FlxG.fade.start(0xffFF0000, 0.5, runOutOfMoney);
@@ -127,12 +124,16 @@ package com.photonstorm.harris
 					else
 					{
 						FlxG.score -= 20;
+						player.pickUpSkis();
+						needsSkis = false;
+						FlxG.scores[0] += 100;
 					}
 				}
 			}
 			
 			if (needsSkis == false && player.Y < 16)
 			{
+				FlxG.scores[0] += 100;
 				FlxG.fade.start(0xffffffff, 0.5, goSkiing);
 			}
 		}
