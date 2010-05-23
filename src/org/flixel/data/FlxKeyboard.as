@@ -89,6 +89,8 @@ package org.flixel.data
 		 */
 		protected const _t:uint = 256;
 		
+		public var lastKey:uint;
+		
 		/**
 		 * Constructor
 		 */
@@ -215,6 +217,7 @@ package org.flixel.data
 			if(o.current > 0) o.current = 1;
 			else o.current = 2;
 			this[o.name] = true;
+			lastKey = event.keyCode;
 		}
 		
 		/**

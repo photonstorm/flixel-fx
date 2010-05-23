@@ -6,7 +6,7 @@ package com.photonstorm.harris
 
 	public class skiSlopeGroup extends FlxGroup
 	{
-		private var scrollSpeed:uint = 40;
+		private var scrollSpeed:uint = 60;
 		
 		public var finishFlag:slopeItemSprite;
 		

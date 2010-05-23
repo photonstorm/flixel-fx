@@ -4,8 +4,108 @@ package org.flixel
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
-	public class FlxBitmapFont
+	public class FlxBitmapFont extends FlxSprite
 	{
+		/**
+		 * Alignment of the text when multiLine = true. Set to FlxBitmapFont.ALIGN_LEFT (default), FlxBitmapFont.ALIGN_RIGHT or FlxBitmapFont.ALIGN_CENTER.
+		 */
+		public var align:String = "left";
+		
+		/**
+		 * If set to true all carriage-returns in text will form new lines (see align). If false the font will only contain one single line of text (the default)
+		 */
+		public var multiLine:Boolean = false;
+		
+		/**
+		 * Automatically convert any text to upper case. Lots of old bitmap fonts only contain upper-case characters, so the default is true.
+		 */
+		public var autoUpperCase:Boolean = true;
+		
+		/**
+		 * Adds horizontal spacing between each character of the font, in pixels. Default is 0.
+		 */
+		public var customSpacingX:uint = 0;
+		
+		/**
+		 * Adds vertical spacing between each line of multi-line text, set in pixels. Default is 0.
+		 */
+		public var customSpacingY:uint = 0;
+		
+		private var _text:String;
+		
+		/**
+		 * Align each line of multi-line text to the left.
+		 */
+		public static const ALIGN_LEFT:String = "left";
+		
+		/**
+		 * Align each line of multi-line text to the right.
+		 */
+		public static const ALIGN_RIGHT:String = "right";
+		
+		/**
+		 * Align each line of multi-line text in the center.
+		 */
+		public static const ALIGN_CENTER:String = "center";
+		
+		/**
+		 * Text Set 1 = !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+		 */
+		public static const TEXT_SET1:String = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+		
+		/**
+		 * Text Set 2 =  !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ
+		 */
+		public static const TEXT_SET2:String = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		
+		/**
+		 * Text Set 3 = ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 
+		 */
+		public static const TEXT_SET3:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ";
+		
+		/**
+		 * Text Set 4 = ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789
+		 */
+		public static const TEXT_SET4:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789";
+		
+		/**
+		 * Text Set 5 = ABCDEFGHIJKLMNOPQRSTUVWXYZ.,/() '!?-*:0123456789
+		 */
+		public static const TEXT_SET5:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.,/() '!?-*:0123456789";
+		
+		/**
+		 * Text Set 6 = ABCDEFGHIJKLMNOPQRSTUVWXYZ!?:;0123456789\"(),-.' 
+		 */
+		public static const TEXT_SET6:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ!?:;0123456789\"(),-.' ";
+		
+		/**
+		 * Text Set 7 = AGMSY+:4BHNTZ!;5CIOU.?06DJPV,(17EKQW\")28FLRX-'39
+		 */
+		public static const TEXT_SET7:String = "AGMSY+:4BHNTZ!;5CIOU.?06DJPV,(17EKQW\")28FLRX-'39";
+		
+		/**
+		 * Text Set 8 = 0123456789 .ABCDEFGHIJKLMNOPQRSTUVWXYZ
+		 */
+		public static const TEXT_SET8:String = "0123456789 .ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		
+		/**
+		 * Text Set 9 = ABCDEFGHIJKLMNOPQRSTUVWXYZ()-0123456789.:,'\"?!
+		 */
+		public static const TEXT_SET9:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ()-0123456789.:,'\"?!";
+		
+		/**
+		 * Text Set 10 = ABCDEFGHIJKLMNOPQRSTUVWXYZ
+		 */
+		public static const TEXT_SET10:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		
+		/**
+		 * Text Set 11 = ABCDEFGHIJKLMNOPQRSTUVWXYZ.,\"-+!?()':;0123456789
+		 */
+		public static const TEXT_SET11:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.,\"-+!?()':;0123456789";
+		
+		/**
+		 * Internval values. All set in the constructor. They should not be changed after that point.
+		 */
 		private var fontSet:BitmapData;
 		private var offsetX:uint;
 		private var offsetY:uint;
@@ -17,28 +117,9 @@ package org.flixel
 		private var grabData:Array
 		
 		/**
-		 * Stores the 'on' or highlighted button state label.
-		 */
-		public static const ALIGN_LEFT:String = "left";
-		public static const ALIGN_RIGHT:String = "right";
-		public static const ALIGN_CENTER:String = "center";
-		
-		public static const TEXT_SET1:String = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-		public static const TEXT_SET2:String = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		public static const TEXT_SET3:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ";
-		public static const TEXT_SET4:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789";
-		public static const TEXT_SET5:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.,/() '!?-*:0123456789";
-		public static const TEXT_SET6:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ!?:;0123456789\"(),-.' ";
-		public static const TEXT_SET7:String = "AGMSY+:4BHNTZ!;5CIOU.?06DJPV,(17EKQW\")28FLRX-'39";
-		public static const TEXT_SET8:String = "0123456789 .ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		public static const TEXT_SET9:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ()-0123456789.:,'\"?!";
-		public static const TEXT_SET10:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		public static const TEXT_SET11:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.,\"-+!?()':;0123456789";
-		
-		/**
-		 * Loads a bitmap font set into memory and creates a new <code>FlxBitmapFont</code> object, for future use by the getLine, getMultiLine, getCharacter methods and dependant classes.
+		 * Loads 'font' and prepares it for use by future calls to .text
 		 * 
-		 * @param	font		The font set graphic.
+		 * @param	font		The font set graphic class (as defined by your embed)
 		 * @param	width		The width of each character in the font set.
 		 * @param	height		The height of each character in the font set.
 		 * @param	chars		The characters used in the font set, in display order. You can use the TEXT_SET consts for common font set arrangements.
@@ -89,103 +170,117 @@ package org.flixel
         }
 		
 		/**
-		 * Return an <code>FlxSprite</code> containing 1 line of text, drawn using the currently loaded bitmap font.
+		 * Set this value to update the text in this sprite. Carriage returns are automatically stripped out if multiLine is false. Text is converted to upper case if autoUpperCase is true.
 		 * 
-		 * @param	text			The string of text to return. Carriage returns are automatically stripped out.
-		 * @param	customSpacingX	To add extra horizontal spacing between each character specify the amount here.
-		 * @param	autoUpperCase	Lots of bitmap font sets only include upper-case characters, if yours supports lower case then set this to false.
-		 * 
-		 * @return	An <code>FlxSprite</code> containing the given line of text.
-		 */
-		public function getLine(text:String, customSpacingX:uint = 0, autoUpperCase:Boolean = true):FlxSprite
+		 * @return	void
+		 */ 
+		public function set text(content:String):void
 		{
+			// TODO Smart update - only change the characters that are different
+			
 			if (autoUpperCase)
 			{
-				text = text.toUpperCase();
+				_text = content.toUpperCase();
+			}
+			else
+			{
+				_text = content;
 			}
 			
-			//	Remove all characters not supported by this font set (excluding spaces)
-			text = removeUnsupportedCharacters(text);
+			removeUnsupportedCharacters(multiLine);
 			
-			var output:BitmapData = new BitmapData(text.length * (characterWidth + customSpacingX), characterHeight, true, 0xf);
-			
-			var s:FlxSprite = new FlxSprite();
-			
-			pasteLine(output, text, 0, 0, customSpacingX);
-			
-			s.pixels = output;
-			
-			return s;
+			buildBitmapFontText();
+		}
+		
+		public function get text():String
+		{
+			return _text;
 		}
 		
 		/**
-		 * Return an <code>FlxSprite</code> containing 1 line of text, drawn using the currently loaded bitmap font.
+		 * A helper function that quickly sets lots of variables at once, and then updates the text.
 		 * 
-		 * @param	text			The string of text to return. Carriage returns are automatically stripped out.
-		 * @param	customSpacingX	To add extra horizontal spacing between each character specify the amount here.
-		 * @param	customSpacingY	To add extra vertical spacing between each line of text specify the amount here.
-		 * @param	align			Align each line of text. Either ALIGN_LEFT (default), ALIGN_RIGHT or ALIGN_CENTER.
-		 * @param	autoUpperCase	Lots of bitmap font sets only include upper-case characters, if yours supports lower case then set this to false.
-		 * 
-		 * @return	An <code>FlxSprite</code> containing the given lines of text.
+		 * @param	content				The text of this sprite
+		 * @param	multiLines			Set to true if you want to support carriage-returns in the text and create a multi-line sprite instead of a single line (default is false).
+		 * @param	characterSpacing	To add horizontal spacing between each character specify the amount in pixels (default 0).
+		 * @param	lineSpacing			To add vertical spacing between each line of text, set the amount in pixels (default 0).
+		 * @param	lineAlignment		Align each line of multi-line text. Set to FlxBitmapFont.ALIGN_LEFT (default), FlxBitmapFont.ALIGN_RIGHT or FlxBitmapFont.ALIGN_CENTER.
+		 * @param	allowLowerCase		Lots of bitmap font sets only include upper-case characters, if yours needs to support lower case then set this to true.
 		 */
-		public function getMultiLine(text:String, customSpacingX:uint = 0, customSpacingY:uint = 0, align:String = "left", autoUpperCase:Boolean = true):FlxSprite
+		public function setText(content:String, multiLines:Boolean = false, characterSpacing:uint = 0, lineSpacing:uint = 0, lineAlignment:String = "left", allowLowerCase:Boolean = false):void
 		{
-			if (autoUpperCase)
+			customSpacingX = characterSpacing;
+			customSpacingY = lineSpacing;
+			align = lineAlignment;
+			multiLine = multiLines;
+			
+			if (allowLowerCase)
 			{
-				text = text.toUpperCase();
+				autoUpperCase = false;
+			}
+			else
+			{
+				autoUpperCase = true;
 			}
 			
-			//	Remove all characters not supported by this font set (excluding carriage-returns & spaces)
-			text = removeUnsupportedCharacters(text, false);
+			text = content;
+		}
+		
+		/**
+		 * Updates the BitmapData of the Sprite with the text
+		 * 
+		 * @return	void
+		 */
+		private function buildBitmapFontText():void
+		{
+			var temp:BitmapData;
 			
-			//	Count how many lines there now are in the text
-			var lines:Array = text.split("\n");
-			
-			var lineCount:uint = lines.length;
-			
-			//	Work out the longest line
-			var longestLine:uint = getLongestLine(text);
-			
-			var x:int = 0;
-			var y:int = 0;
-			var output:FlxSprite = new FlxSprite();
-			var temp:BitmapData = new BitmapData(longestLine * (characterWidth + customSpacingX), (lineCount * (characterHeight + customSpacingY)) - customSpacingY, true, 0xf);
-			
-			//	Loop through each line of text
-			for (var i:uint = 0; i < lines.length; i++)
+			if (multiLine)
 			{
-				//	This line of text is held in lines[i] - need to work out the alignment
-				switch (align)
+				var lines:Array = _text.split("\n");
+				
+				var cx:int = 0;
+				var cy:int = 0;
+			
+				temp = new BitmapData(getLongestLine() * (characterWidth + customSpacingX), (lines.length * (characterHeight + customSpacingY)) - customSpacingY, true, 0xf);
+				
+				//	Loop through each line of text
+				for (var i:uint = 0; i < lines.length; i++)
 				{
-					case ALIGN_LEFT:
-						x = 0;
-						break;
-						
-					case ALIGN_RIGHT:
-						x = temp.width - (lines[i].length * (characterWidth + customSpacingX));
-						break;
-						
-					case ALIGN_CENTER:
-						x = (temp.width / 2) - ((lines[i].length * (characterWidth + customSpacingX)) / 2);
-						x += customSpacingX / 2;
-						break;
+					//	This line of text is held in lines[i] - need to work out the alignment
+					switch (align)
+					{
+						case ALIGN_LEFT:
+							cx = 0;
+							break;
+							
+						case ALIGN_RIGHT:
+							cx = temp.width - (lines[i].length * (characterWidth + customSpacingX));
+							break;
+							
+						case ALIGN_CENTER:
+							cx = (temp.width / 2) - ((lines[i].length * (characterWidth + customSpacingX)) / 2);
+							cx += customSpacingX / 2;
+							break;
+					}
+					
+					pasteLine(temp, lines[i], cx, cy, customSpacingX);
+					
+					cy += characterHeight + customSpacingY;
 				}
-				
-				pasteLine(temp, lines[i], x, y, customSpacingX);
-				
-				y += characterHeight + customSpacingY;
+			}
+			else
+			{
+				temp = new BitmapData(_text.length * (characterWidth + customSpacingX), characterHeight, true, 0xf);
+			
+				pasteLine(temp, _text, 0, 0, customSpacingX);
 			}
 			
-			output.pixels = temp;
-			
-			return output;
+			pixels = temp;
 		}
 		
-		//	Gets a single character and returns it without the overhead of calling getLine with a string of length 1
-		
 		/**
-		 * Returns a single character from the font set as an FlxsSprite. Avoids the overhead of calling getLine() with a string of length 1.
+		 * Returns a single character from the font set as an FlxsSprite.
 		 * 
 		 * @param	char	The character you wish to have returned.
 		 * 
@@ -212,26 +307,26 @@ package org.flixel
 		 * Used by getLine and getMultiLine
 		 * 
 		 * @param	output			The BitmapData that the text will be drawn onto
-		 * @param	text			The single line of text to paste
+		 * @param	line			The single line of text to paste
 		 * @param	x				The x coordinate
 		 * @param	y
 		 * @param	customSpacingX
 		 */
-		private function pasteLine(output:BitmapData, text:String, x:uint = 0, y:uint = 0, customSpacingX:uint = 0):void
+		private function pasteLine(output:BitmapData, line:String, x:uint = 0, y:uint = 0, customSpacingX:uint = 0):void
 		{
-			for (var c:uint = 0; c < text.length; c++)
+			for (var c:uint = 0; c < line.length; c++)
 			{
 				//	If it's a space then there is no point copying, so leave a blank space
-				if (text.charAt(c) == " ")
+				if (line.charAt(c) == " ")
 				{
 					x += characterWidth + customSpacingX;
 				}
 				else
 				{
 					//	If the character doesn't exist in the font then we don't want a blank space, we just want to skip it
-					if (grabData[text.charCodeAt(c)] is Rectangle)
+					if (grabData[line.charCodeAt(c)] is Rectangle)
 					{
-						output.copyPixels(fontSet, grabData[text.charCodeAt(c)], new Point(x, y));
+						output.copyPixels(fontSet, grabData[line.charCodeAt(c)], new Point(x, y));
 						x += characterWidth + customSpacingX;
 					}
 				}
@@ -239,19 +334,17 @@ package org.flixel
 		}
 		
 		/**
-		 * Works out the longest line of text in the given String and returns its length
-		 * 
-		 * @param	text	The string of text to check
+		 * Works out the longest line of text in _text and returns its length
 		 * 
 		 * @return	A value
 		 */
-		private function getLongestLine(text:String):uint
+		private function getLongestLine():uint
 		{
 			var longestLine:uint = 0;
 			
-			if (text.length > 0)
+			if (_text.length > 0)
 			{
-				var lines:Array = text.split("\n");
+				var lines:Array = _text.split("\n");
 				
 				for (var i:uint = 0; i < lines.length; i++)
 				{
@@ -266,22 +359,21 @@ package org.flixel
 		}
 		
 		/**
-		 * Internal helper function that removes all unsupported characters from the String, leaving only characters contained in the font set.
+		 * Internal helper function that removes all unsupported characters from the _text String, leaving only characters contained in the font set.
 		 * 
-		 * @param	text		The string to check
 		 * @param	stripCR		Should it strip carriage returns as well? (default = true)
 		 * 
 		 * @return	A clean version of the string
 		 */
-		private function removeUnsupportedCharacters(text:String, stripCR:Boolean = true):String
+		private function removeUnsupportedCharacters(stripCR:Boolean = true):String
 		{
 			var newString:String = "";
 			
-			for (var c:uint = 0; c < text.length; c++)
+			for (var c:uint = 0; c < _text.length; c++)
 			{
-				if (grabData[text.charCodeAt(c)] is Rectangle || text.charCodeAt(c) == 32 || (stripCR == false && text.charAt(c) == "\n"))
+				if (grabData[_text.charCodeAt(c)] is Rectangle || _text.charCodeAt(c) == 32 || (stripCR == false && _text.charAt(c) == "\n"))
 				{
-					newString = newString.concat(text.charAt(c));
+					newString = newString.concat(_text.charAt(c));
 				}
 			}
 			

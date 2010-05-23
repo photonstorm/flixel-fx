@@ -1,6 +1,7 @@
 package  
 {
 	import org.flixel.*;
+	import flash.utils.getTimer;
 
 	public class Demo17BitmapFont extends FlxState
 	{
@@ -13,25 +14,12 @@ package
 		[Embed(source = '../assets/bitmap fonts/robocop_font.png')] private var robocopFont:Class;
 		
 		private var fb1:FlxBitmapFont;
-		private var text1:FlxSprite;
-		
 		private var fb2:FlxBitmapFont;
-		private var text2:FlxSprite;
-		
 		private var fb3:FlxBitmapFont;
-		private var text3:FlxSprite;
-		
 		private var fb4:FlxBitmapFont;
-		private var text4:FlxSprite;
-		
 		private var fb5:FlxBitmapFont;
-		private var text5:FlxSprite;
-		
 		private var fb6:FlxBitmapFont;
-		private var text6:FlxSprite;
-		
 		private var fb7:FlxBitmapFont;
-		private var text7:FlxSprite;
 
 		public function Demo17BitmapFont() 
 		{
@@ -49,51 +37,53 @@ package
 			super.create();
 			
 			fb1 = new FlxBitmapFont(bluepinkFont, 32, 32, FlxBitmapFont.TEXT_SET2, 10);
-			text1 = fb1.getLine("flixel bitmap fonts");
-			text1.x = (FlxG.width / 2) - (text1.width / 2);
-			text1.y = 0;
+			fb1.text = "flixel bitmap fonts";
+			fb1.x = (FlxG.width / 2) - (fb1.width / 2);
+			fb1.y = 0;
 
 			fb2 = new FlxBitmapFont(knighthawksFont, 31, 25, FlxBitmapFont.TEXT_SET2, 10, 1, 0);
-			text2 = fb2.getMultiLine("bought to you by\nphoton storm", 0, 8, FlxBitmapFont.ALIGN_CENTER);
-			text2.x = (FlxG.width / 2) - (text2.width / 2);
-			text2.y = text1.y + text1.height + 32;
+			fb2.setText("bought to you\nby photon storm", true, 0, 8, FlxBitmapFont.ALIGN_CENTER);
+			fb2.x = (FlxG.width / 2) - (fb2.width / 2);
+			fb2.y = fb1.y + fb1.height + 32;
 			
 			fb3 = new FlxBitmapFont(bubblesFont, 32, 32, " FLRX!AGMSY?BHNTZ-CIOU. DJPV, EKQW' ", 6);
-			text3 = fb3.getLine("lovely bubbles!");
-			text3.x = (FlxG.width / 2) - (text3.width / 2);
-			text3.y = text2.y + text2.height + 32;
+			fb3.text = "lovely bubbles!";
+			fb3.x = (FlxG.width / 2) - (fb3.width / 2);
+			fb3.y = fb2.y + fb2.height + 32;
 			
 			fb4 = new FlxBitmapFont(naosFont, 31, 32, FlxBitmapFont.TEXT_SET10 + "4()!45789", 6, 16, 1);
-			text4 = fb4.getLine("atari rocks da house");
-			text4.x = (FlxG.width / 2) - (text4.width / 2);
-			text4.y = text3.y + text3.height + 32;
+			fb4.text = "atari rocks the house";
+			fb4.x = (FlxG.width / 2) - (fb4.width / 2);
+			fb4.y = fb3.y + fb3.height + 32;
 			
 			fb5 = new FlxBitmapFont(spazFont, 32, 32, FlxBitmapFont.TEXT_SET11 + "#", 9, 1, 1);
-			text5 = fb5.getLine("lost boys forever");
-			text5.x = (FlxG.width / 2) - (text5.width / 2);
-			text5.y = text4.y + text4.height + 32;
+			fb5.text = "lost boys forever";
+			fb5.x = (FlxG.width / 2) - (fb5.width / 2);
+			fb5.y = fb4.y + fb4.height + 32;
 			
 			fb6 = new FlxBitmapFont(deltaForceFont, 16, 16, FlxBitmapFont.TEXT_SET4 + ".:;!?\"'()^-,/abcdefghij", 20, 0, 1);
-			text6 = fb6.getMultiLine("IF THE FONT CONTAINS COOL CHARACTERS\n^a THEN b USE b THEM! ^a", 0, 8, FlxBitmapFont.ALIGN_CENTER, false);
-			text6.x = (FlxG.width / 2) - (text6.width / 2);
-			text6.y = text5.y + text5.height + 32;
+			fb6.setText("IF THE FONT CONTAINS CbbL CHARACTERS\n^a THEN c USE d THEM! ^a", true, 0, 8, FlxBitmapFont.ALIGN_CENTER, true);
+			fb6.x = (FlxG.width / 2) - (fb6.width / 2);
+			fb6.y = fb5.y + fb5.height + 32;
 			
 			fb7 = new FlxBitmapFont(robocopFont, 26, 32, " !\"aao '()  ;-./          :; = ?*ABCDEFGHIJKLMNOPQRSTUVWXYZ", 10, 6, 0, 3, 0);
-			text7 = fb7.getLine("go have fun!");
-			text7.x = (FlxG.width / 2) - (text7.width / 2);
-			text7.y = text6.y + text6.height + 32;
+			fb7.text = "go have fun!";
+			fb7.x = (FlxG.width / 2) - (fb7.width / 2);
+			fb7.y = fb6.y + fb6.height + 32;
 			
-			add(text1);
-			add(text2);
-			add(text3);
-			add(text4);
-			add(text5);
-			add(text6);
-			add(text7);
+			add(fb1);
+			add(fb2);
+			add(fb3);
+			add(fb4);
+			add(fb5);
+			add(fb6);
+			add(fb7);
 		}
 		
 		override public function render():void
 		{
+			//fb1.text = "rock on! " + getTimer().toString();
+			
 			super.render();
 		}
 		

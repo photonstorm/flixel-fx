@@ -18,7 +18,8 @@ package com.photonstorm.harris
 		public var harrisAngel:FlxSprite;
 		public var theSkis:FlxSprite;
 		
-		private var skiSpeed:int = 80;
+		//private var skiSpeed:int = 80;
+		private var skiSpeed:int = 90;
 		private var moveSpeed:int = 80;
 		
 		public var hasSkis:Boolean = false;
@@ -81,6 +82,8 @@ package com.photonstorm.harris
 			harrisSkiing.height = 16;
 			harrisSkiing.offset.x = 4;
 			harrisSkiing.offset.y = 7;
+			
+			harrisSkiing.drag.x = 270;
 			
 			setupRIPSprites();
 			
@@ -229,6 +232,8 @@ package com.photonstorm.harris
 			harrisSkiing.y = 16;
 			harrisSkiing.visible = true;
 			harrisSkiing.facing = FlxSprite.DOWN;
+			harrisSkiing.acceleration.x = 0;
+			harrisSkiing.velocity.x = 0;
 			
 			harrisRIP.visible = false;
 			harrisAngel.visible = false;
@@ -270,6 +275,8 @@ package com.photonstorm.harris
 			{
 				var isMoving:Boolean = false;
 				
+				//harrisSkiing.velocity.x = 0;
+				
 				if (FlxG.keys.LEFT && harrisSkiing.x > 0)
 				{
 					if (harrisSkiing.facing != FlxSprite.LEFT)
@@ -286,7 +293,8 @@ package com.photonstorm.harris
 						}
 					}
 					
-					harrisSkiing.x -= FlxG.elapsed * skiSpeed;
+					harrisSkiing.velocity.x = -skiSpeed;
+					//harrisSkiing.x -= FlxG.elapsed * skiSpeed;
 					isMoving = true;
 				}
 				
@@ -306,7 +314,8 @@ package com.photonstorm.harris
 						}
 					}
 					
-					harrisSkiing.x += FlxG.elapsed * skiSpeed;
+					harrisSkiing.velocity.x = skiSpeed;
+					//harrisSkiing.x += FlxG.elapsed * skiSpeed;
 					isMoving = true;
 				}
 				

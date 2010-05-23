@@ -49,20 +49,6 @@ package com.photonstorm.harris
 					this.visible = false;
 					break;
 				
-				/*
-				case "flagsBlue":
-					loadGraphic(flagsBluePNG);
-					height = 16;
-					offset.y = 16;
-					break;
-				
-				case "flagsRed":
-					loadGraphic(flagsRedPNG);
-					height = 16;
-					offset.y = 16;
-					break;
-				*/
-				
 				case "hole":
 					loadGraphic(holePNG);
 					break;
