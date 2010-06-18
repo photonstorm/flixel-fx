@@ -35,9 +35,41 @@ package com.photonstorm.harris
 			lane4Crash = false;
 			lane5Crash = false;
 			
-			var minSpeed:int = 60;
-			var maxSpeed:int = 80;
-			releaseRate = 5000;
+			var minSpeed:int;
+			var maxSpeed:int;
+			
+			switch (FlxG.level)
+			{
+				case 1:
+					minSpeed = 60;
+					maxSpeed = 80;
+					releaseRate = 5000;
+					break;
+					
+				case 2:
+					minSpeed = 70;
+					maxSpeed = 90;
+					releaseRate = 4500;
+					break;
+					
+				case 3:
+					minSpeed = 80;
+					maxSpeed = 100;
+					releaseRate = 4000;
+					break;
+					
+				case 4:
+					minSpeed = 90;
+					maxSpeed = 110;
+					releaseRate = 3500;
+					break;
+					
+				case 5:
+					minSpeed = 100;
+					maxSpeed = 120;
+					releaseRate = 3000;
+					break;
+			}
 			
 			for (var c:uint = 0; c < 25; c++)
 			{

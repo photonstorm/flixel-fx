@@ -5,6 +5,7 @@ package
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.display.Stage;
+	import flash.utils.ByteArray;
 	
 	import flash.events.*;
 	
@@ -16,13 +17,22 @@ package
 	import flash.text.TextField;
 	
 	import flash.ui.Mouse;
+	import flash.net.FileReference;
 	
 	import com.greensock.TweenMax;
+	import com.adobe.images.PNGEncoder;
+	import photonstorm.demofx.dropdownFX;
+	import FlxFlod;
 	
 	public class Paint extends Sprite
 	{
+		[Embed(source = "../assets/toefluff.mod", mimeType = "application/octet-stream")] private var toeFluffMOD:Class;
+		
+		private var drop:dropdownFX = new dropdownFX();
+		
 		public var toeFluff:boardMC;
 		public var hitZone:Sprite;
+		private var file:FileReference = new FileReference();
 		
 		//Paper vars
 		protected var _paper:Bitmap;
@@ -35,7 +45,10 @@ package
 		protected var _oCT:ColorTransform;
 		protected var _oRect:Rectangle;
 		
+		private var showingCredits:Boolean;
+		private var credits:Bitmap;
 		private var currentCrayon:MovieClip;
+		private var colorIndex:int;
 		private var currentColor:String;
 		
 		//Brush vars
@@ -75,16 +88,37 @@ package
 			createPaper();
 			
 			toeFluff = new boardMC();
-			addChild(toeFluff);
 			
 			currentColor = "crayonRed";
+			colorIndex = 3;
 			currentCrayon = toeFluff.crayonRed;
 			
 			createBrush(0xffd63535);
 			
+			showingCredits = false;
+			credits = drop.init(new Bitmap(new creditsPNG(418, 420)), 1, false, true);
+			credits.x = 68;
+			credits.y = 58;
+			credits.alpha = 0;
+			credits.visible = false;
+			credits.addEventListener(MouseEvent.CLICK, toggleCredits);
+			
 			mouseCursor = new cursorMC();
 			mouseCursor.gotoAndStop(3);
-			addChild(mouseCursor);
+			mouseCursor.visible = false;
+			
+			toeFluff.crayonWhite.buttonMode = true;
+			toeFluff.crayonBlack.buttonMode = true;
+			toeFluff.crayonRed.buttonMode = true;
+			toeFluff.crayonYellow.buttonMode = true;
+			toeFluff.crayonPurple.buttonMode = true;
+			toeFluff.crayonGrey.buttonMode = true;
+			toeFluff.crayonBlue.buttonMode = true;
+			toeFluff.crayonGreen.buttonMode = true;
+			
+			toeFluff.boardTitle.buttonMode = true;
+			toeFluff.saveButton.buttonMode = true;
+			toeFluff.resetButton.buttonMode = true;
 			
 			toeFluff.crayonWhite.addEventListener(MouseEvent.CLICK, changeBrushColor);
 			toeFluff.crayonBlack.addEventListener(MouseEvent.CLICK, changeBrushColor);
@@ -95,34 +129,178 @@ package
 			toeFluff.crayonBlue.addEventListener(MouseEvent.CLICK, changeBrushColor);
 			toeFluff.crayonGreen.addEventListener(MouseEvent.CLICK, changeBrushColor);
 			
+			toeFluff.boardTitle.addEventListener(MouseEvent.CLICK, toggleCredits);
+			toeFluff.resetButton.addEventListener(MouseEvent.CLICK, resetCanvas);
+			toeFluff.saveButton.addEventListener(MouseEvent.CLICK, saveCanvas);
+			
+			stageRef.addEventListener(MouseEvent.MOUSE_WHEEL, wheelColour);
+			
 			stageRef.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 			stageRef.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			stageRef.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
-			//stageRef.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
-			//stageRef.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
-			//stageRef.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 			stageRef.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 			stageRef.addEventListener(Event.DEACTIVATE, onFocusLost);
-			//stageRef.addEventListener(Event.ACTIVATE, onFocus);
-			
+
+			addChild(toeFluff);
+			addChild(mouseCursor);
 			addChild(hitZone);
+			addChild(credits);
 			
-			//That's it! All set
 			addEventListener(Event.ENTER_FRAME, update);
 			
 			animateIn();
 		}
 		
+		private function wheelColour(event:MouseEvent):void
+		{
+			var oldColor:int = colorIndex;
+			
+			if (event.delta < 0)
+			{
+				if (colorIndex > 1)
+				{
+					colorIndex--;
+				}
+			}
+			else
+			{
+				if (colorIndex < 8)
+				{
+					colorIndex++;
+				}
+			}
+			
+			if (oldColor == colorIndex)
+			{
+				return;
+			}
+			
+			TweenMax.to(currentCrayon, 0.25, { y: 505 } );
+					
+			switch (colorIndex)
+			{
+				case 1:
+					createBrush(0xeeffffff);
+					mouseCursor.gotoAndStop(1);
+					currentCrayon = toeFluff.crayonWhite;
+					currentColor = "crayonWhite";
+					break;
+					
+				case 2:
+					createBrush(0xff000000);
+					mouseCursor.gotoAndStop(2);
+					currentCrayon = toeFluff.crayonBlack;
+					currentColor = "crayonBlack";
+					break;
+					
+				case 3:
+					createBrush(0xffd63535);
+					mouseCursor.gotoAndStop(3);
+					currentCrayon = toeFluff.crayonRed;
+					currentColor = "crayonRed";
+					break;
+					
+				case 4:
+					createBrush(0xfffdd444);
+					mouseCursor.gotoAndStop(4);
+					currentCrayon = toeFluff.crayonYellow;
+					currentColor = "crayonYellow";
+					break;
+					
+				case 5:
+					createBrush(0xffb74b9c);
+					mouseCursor.gotoAndStop(5);
+					currentCrayon = toeFluff.crayonPurple;
+					currentColor = "crayonPurple";
+					break;
+					
+				case 6:
+					createBrush(0xffd3d3d3);
+					mouseCursor.gotoAndStop(6);
+					currentCrayon = toeFluff.crayonGrey;
+					currentColor = "crayonGrey";
+					break;
+					
+				case 7:
+					createBrush(0xff87d6ff);
+					mouseCursor.gotoAndStop(7);
+					currentCrayon = toeFluff.crayonBlue;
+					currentColor = "crayonBlue";
+					break;
+					
+				case 8:
+					createBrush(0xff73ff3d);
+					mouseCursor.gotoAndStop(8);
+					currentCrayon = toeFluff.crayonGreen;
+					currentColor = "crayonGreen";
+					break;
+			}
+			
+			TweenMax.to(currentCrayon, 0.25, { y: 490 } );
+			
+		}
+		
 		private function animateIn():void
 		{
+			TweenMax.to(toeFluff.boardTitle, 1, { alpha: 1, delay: 1 } );
+			TweenMax.to(toeFluff.toeFluffCanvas, 1, { alpha: 1, delay: 1 } );
+			
 			TweenMax.to(toeFluff.crayonWhite, 0.25, { y: 490, yoyo: true, repeat: 1 } );
 			TweenMax.to(toeFluff.crayonBlack, 0.25, { y: 490, yoyo: true, repeat: 1, delay: 0.1 } );
-			TweenMax.to(toeFluff.crayonRed, 0.25, { y: 490, yoyo: true, repeat: 1, delay: 0.2 } );
+			TweenMax.to(toeFluff.crayonRed, 0.25, { y: 490, delay: 0.2 } );
 			TweenMax.to(toeFluff.crayonYellow, 0.25, { y: 490, yoyo: true, repeat: 1, delay: 0.3 } );
 			TweenMax.to(toeFluff.crayonPurple, 0.25, { y: 490, yoyo: true, repeat: 1, delay: 0.4 } );
 			TweenMax.to(toeFluff.crayonGrey, 0.25, { y: 490, yoyo: true, repeat: 1, delay: 0.5 } );
 			TweenMax.to(toeFluff.crayonBlue, 0.25, { y: 490, yoyo: true, repeat: 1, delay: 0.6 } );
 			TweenMax.to(toeFluff.crayonGreen, 0.25, { y: 490, yoyo: true, repeat: 1, delay: 0.7 } );
+		}
+		
+		private function toggleCredits(event:MouseEvent):void
+		{
+			if (TweenMax.isTweening(credits))
+			{
+				return;
+			}
+			
+			if (showingCredits)
+			{
+				TweenMax.to(credits, 0.5, { autoAlpha: 0 } );
+				showingCredits = false;
+				FlxFlod.stopMod();
+			}
+			else
+			{
+				TweenMax.to(credits, 1, { autoAlpha: 1 } );
+				showingCredits = true;
+				applyOverlay();
+				drop.restart();
+				mouseCursor.visible = false;
+				Mouse.show();
+				FlxFlod.playMod(toeFluffMOD);
+			}
+		}
+		
+		private function resetCanvas(event:MouseEvent):void
+		{
+			applyOverlay();
+			
+			_overlay.bitmapData.fillRect(_oRect, 0);
+			_paper.bitmapData.fillRect(_oRect, 0xffffffff);
+		}
+		
+		private function saveCanvas(event:MouseEvent):void
+		{
+			trace("Saving to PNG");
+			
+			applyOverlay();
+			
+			var merged:BitmapData = _paper.bitmapData.clone();
+			
+			merged.draw(new toeFluffOverlay());
+			
+			var ba:ByteArray = PNGEncoder.encode(merged);
+			
+			file.save(ba, "ToeFluff.png");
 		}
 		
 		private function changeBrushColor(event:MouseEvent):void
@@ -136,10 +314,9 @@ package
 				switch (event.currentTarget.name)
 				{
 					case "crayonWhite":
-						createBrush(0xffffffff);
+						createBrush(0xeeffffff);
 						mouseCursor.gotoAndStop(1);
 						currentCrayon = toeFluff.crayonWhite;
-						_oCT.alphaMultiplier = 1;
 						break;
 						
 					case "crayonBlack":
@@ -193,19 +370,22 @@ package
 		
 		protected function update(event:Event):void
 		{
-			if (hitZone.hitTestPoint(mouseX, mouseY))
+			if (showingCredits == false)
 			{
-				mouseCursor.visible = true;
-				Mouse.hide();
+				if (hitZone.hitTestPoint(mouseX, mouseY))
+				{
+					mouseCursor.visible = true;
+					Mouse.hide();
+				}
+				else
+				{
+					mouseCursor.visible = false;
+					Mouse.show();
+				}
+				
+				_overlay.visible = _painting;
+				_brush.visible = !_painting;
 			}
-			else
-			{
-				mouseCursor.visible = false;
-				Mouse.show();
-			}
-			
-			_overlay.visible = _painting;
-			_brush.visible = !_painting;
 		}
 		
 		protected function createPaper():void
@@ -345,6 +525,11 @@ package
 		
 		protected function onMouseDown(event:MouseEvent):void
 		{
+			if (showingCredits)
+			{
+				toggleCredits(event);
+			}
+			
 			onMouseMove(event);
 		}
 		
