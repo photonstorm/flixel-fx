@@ -4,29 +4,28 @@
 <flex-config>
   <target-player>9.0.0</target-player>
   <compiler>
-    <define>
+    <define append="true">
       <name>CONFIG::debug</name>
       <value>true</value>
     </define>
-    <define>
+    <define append="true">
       <name>CONFIG::release</name>
       <value>false</value>
     </define>
-    <define>
+    <define append="true">
       <name>CONFIG::timeStamp</name>
-      <value>'23/05/2010 13:27'</value>
+      <value>'26/01/2011'</value>
     </define>
     <source-path append="true">
-      <path-element>C:\Users\Rich\Desktop\Flash\Flixel FX\src</path-element>
-      <path-element>C:\Program Files (x86)\Adobe\Adobe Flash CS4\Common\First Run\Classes\mx</path-element>
+      <path-element>G:\Flash\Flixel FX\src</path-element>
       <path-element>C:\Program Files (x86)\FlashDevelop\Library\AS3\classes</path-element>
     </source-path>
     <library-path append="true">
-      <path-element>C:\Users\Rich\Desktop\Flash\Flixel FX\assets\harris\levels.swc</path-element>
+      <path-element>G:\Flash\Flixel FX\assets\harris\levels.swc</path-element>
     </library-path>
   </compiler>
   <file-specs>
-    <path-element>C:\Users\Rich\Desktop\Flash\Flixel FX\src\com\photonstorm\harris\harris.as</path-element>
+    <path-element>G:\Flash\Flixel FX\src\com\photonstorm\harris\harris.as</path-element>
   </file-specs>
   <default-background-color>#FFFFFF</default-background-color>
   <default-frame-rate>30</default-frame-rate>

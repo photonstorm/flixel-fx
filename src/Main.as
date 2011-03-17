@@ -28,9 +28,9 @@ package
 			//super(320, 240, Demo9Plasma, 2);
 			//super(320, 240, crystalcaverns, 2);
 			//super(320, 240, FlxCentipede, 2);
-			//super(320, 240, Demo15Melon, 2);
+			super(320, 240, Demo15Melon, 2);
 			//super(320, 240, Demo16TextWriter, 2);
-			super(640, 480, Demo17BitmapFont, 1);
+			//super(640, 480, Demo17BitmapFont, 1);
 			//super(640, 480, Demo18SWCBitmap, 2);
 			//super(640, 480, Demo19BitmapFont, 1);
 			
